@@ -1,4 +1,12 @@
-import { Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import {
+  ActivityIndicator,
+  Alert,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native"
 import React, { FC, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { AuthStackParamList } from "app/navigators"
@@ -7,7 +15,7 @@ import { useHeader } from "app/utils/useHeader"
 import { colors } from "app/theme"
 import { TextInput } from "react-native-gesture-handler"
 import { Button } from "app/components"
-import Toast from "react-native-toast-message"
+import { firebaseModel } from "app/services/Firebase/firebase.service"
 
 type SignUpProps = NativeStackScreenProps<AuthStackParamList, "SignUp">
 
@@ -17,6 +25,7 @@ interface User {
   email: string
   location: string
   password: string
+  trustPoints: number
 }
 
 interface SignUpQuestionProps {
@@ -44,62 +53,64 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
 
   const [currentIndex, setCurrentIndex] = useState<number>(0)
 
-  const [user, setUser] = useState<User>({
+  const [userDetails, setUser] = useState<User>({
     firstName: "",
     lastName: "",
     email: "",
     location: "",
     password: "",
+    trustPoints: 0
   })
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
   const [confirmPassword, setConfirmPassword] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(false)
 
   const signUpObject: SignUpQuestionProps[] = [
     {
-      question: "Tell your first name",
+      question: "Tell us your first name",
       description: "Welcome!",
       placeholder: "First name",
-      value: user.firstName,
-      setter: (value) => setUser({ ...user, firstName: value }),
+      value: userDetails.firstName,
+      setter: (value) => setUser({ ...userDetails, firstName: value }),
       isPassword: false,
-      validate: () => user.firstName.trim() !== "",
+      validate: () => userDetails.firstName.trim() !== "",
     },
     {
       question: "Enter your last name",
-      description: `Nice to meet you ${user.firstName}!`,
+      description: `Nice to meet you ${userDetails.firstName}!`,
       placeholder: "Last name",
-      value: user.lastName,
-      setter: (value) => setUser({ ...user, lastName: value }),
+      value: userDetails.lastName,
+      setter: (value) => setUser({ ...userDetails, lastName: value }),
       isPassword: false,
-      validate: () => user.lastName.trim() !== "",
+      validate: () => userDetails.lastName.trim() !== "",
     },
     {
       question: "Enter your email",
-      description: `Got it ${user.firstName + " " + user.lastName}🫡`,
+      description: `Got it ${userDetails.firstName + " " + userDetails.lastName}🫡`,
       placeholder: "Email",
-      value: user.email,
-      setter: (value) => setUser({ ...user, email: value }),
+      value: userDetails.email,
+      setter: (value) => setUser({ ...userDetails, email: value }),
       isPassword: false,
-      validate: () => validateEmail(user.email),
+      validate: () => validateEmail(userDetails.email),
     },
     {
       question: "Enter your location",
       description: "Almost there!",
       placeholder: "Location",
-      value: user.location,
-      setter: (value) => setUser({ ...user, location: value }),
+      value: userDetails.location,
+      setter: (value) => setUser({ ...userDetails, location: value }),
       isPassword: false,
-      validate: () => user.location.trim() !== "",
+      validate: () => userDetails.location.trim() !== "",
     },
     {
       question: "Enter your password",
       description: `Great! Now time for the password. I wont look 🙈`,
       placeholder: "Password",
-      value: user.password,
-      setter: (value) => setUser({ ...user, password: value }),
+      value: userDetails.password,
+      setter: (value) => setUser({ ...userDetails, password: value }),
       isPassword: true,
-      validate: () => validatePassword(user.password),
+      validate: () => validatePassword(userDetails.password),
     },
     {
       question: "Confirm your password",
@@ -108,7 +119,7 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
       value: confirmPassword,
       setter: setConfirmPassword,
       isPassword: true,
-      validate: () => user.password === confirmPassword,
+      validate: () => userDetails.password === confirmPassword,
     },
   ]
 
@@ -132,6 +143,9 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
   }
 
   const validateEmail = (email: string): boolean => {
+    /**
+     * check if email already exists
+     */
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return re.test(email)
   }
@@ -146,11 +160,19 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
     return minLength && hasUppercase && hasLowercase && hasNumber && hasSpecialChar
   }
 
+  const createUser = async () => {
+    setLoading(true)
+    firebaseModel
+      .signUp(userDetails)
+      .then((res) => setLoading(false))
+      .catch((err) => setLoading(false))
+  }
   const updateQuestion = (command: Command) => {
     if (command === "next") {
       if (!validateAnswer()) return
       if (currentIndex === signUpObject.length - 1) {
-        console.log(user)
+        console.log(userDetails)
+        createUser()
         return
       }
       setCurrentIndex(currentIndex + 1)
@@ -174,6 +196,8 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
               value={signUpQuestion.value}
               placeholder={signUpQuestion.placeholder}
               onChangeText={signUpQuestion.setter}
+              placeholderTextColor={colors.palette.ctaHelper}
+              inputMode={signUpQuestion.placeholder === "Email" ? "email" : "text"}
               secureTextEntry={
                 signUpQuestion.isPassword &&
                 !(signUpQuestion.placeholder === "Password" ? showPassword : showConfirmPassword)
@@ -206,6 +230,16 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
       </View>
     )
   }
+
+  if (loading)
+    // make better design
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size={50} />
+        <Text style={styles.formDescription}>Please wait...</Text>
+      </SafeAreaView>
+    )
+
   return (
     <SafeAreaView style={styles.container}>
       <View>
@@ -281,7 +315,7 @@ const styles = StyleSheet.create({
   },
   formDescription: {
     fontSize: 15,
-    marginBottom: 15,
+    marginBottom: 7,
     color: colors.palette.secondary300,
   },
   formInput: {
@@ -290,6 +324,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 10,
     borderRadius: 7,
+    color: colors.text,
   },
   passwordToggle: {
     color: colors.palette.secondary300,

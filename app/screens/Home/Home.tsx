@@ -4,10 +4,10 @@ import { observer } from 'mobx-react-lite'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { AppStackParamList } from 'app/navigators'
 
-type mapProps = NativeStackScreenProps<AppStackParamList, "Map">
+type homeProps = NativeStackScreenProps<AppStackParamList, "Home">
 
 
-export const Map: FC<mapProps> = observer(() => {
+export const Home: FC<homeProps> = observer(() => {
     return (
         <View>
           <Text>Map</Text>

@@ -1,4 +1,12 @@
-import { SafeAreaView, StyleSheet, Text, TextInput, View } from "react-native"
+import {
+  ActivityIndicator,
+  Alert,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native"
 import React, { FC, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { AuthStackParamList } from "app/navigators"
@@ -6,12 +14,32 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { colors } from "app/theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { Button } from "app/components"
+import auth from "@react-native-firebase/auth"
+import { firebaseModel } from "app/services/Firebase/firebase.service"
 
 type LoginProps = NativeStackScreenProps<AuthStackParamList, "Login">
 
 export const Login: FC<LoginProps> = observer(({ navigation }) => {
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(false)
+
+  const signInUser = async () => {
+    setLoading(true)
+    firebaseModel
+      .signIn(email, password)
+      .then((res) => setLoading(false))
+      .catch((err) => setLoading(false))
+  }
+
+  if (loading)
+    // make better design
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+        <ActivityIndicator size={50} />
+        <Text style={styles.signUpText}>Please wait...</Text>
+      </SafeAreaView>
+    )
 
   return (
     <SafeAreaView style={styles.container}>
@@ -33,8 +61,11 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
             placeholderTextColor={colors.palette.secondary100}
             onChangeText={setPassword}
           />
+          <TouchableOpacity style={styles.forgotPassword}>
+            <Text style={styles.signUpText}>forgot password?</Text>
+          </TouchableOpacity>
         </View>
-        <Button text="Login" preset="filled" style={styles.button} />
+        <Button text="Login" preset="filled" style={styles.button} onPress={signInUser} />
       </View>
 
       <TouchableOpacity
@@ -79,5 +110,9 @@ const styles = StyleSheet.create({
   button: {
     marginVertical: 30,
     marginHorizontal: 20,
+  },
+  forgotPassword: {
+    marginTop: 7,
+    alignItems: "center",
   },
 })

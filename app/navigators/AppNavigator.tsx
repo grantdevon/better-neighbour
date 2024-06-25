@@ -7,12 +7,14 @@
 import { DarkTheme, DefaultTheme, NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { useColorScheme } from "react-native"
 import * as Screens from "app/screens"
 import Config from "../config"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 import { colors } from "app/theme"
+import auth from "@react-native-firebase/auth"
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -28,7 +30,10 @@ import { colors } from "app/theme"
  *   https://reactnavigation.org/docs/typescript/#organizing-types
  */
 export type AppStackParamList = {
-  Welcome: undefined
+  Home: undefined
+  Map: undefined,
+  Settings: undefined
+  
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
@@ -52,22 +57,37 @@ export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStack
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<AppStackParamList>()
-const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>();
+const Tab = createBottomTabNavigator<AppStackParamList>()
 
+const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>()
 
 const AppStack = observer(function AppStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, navigationBarColor: colors.background }}>
-      <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
-      {/** 🔥 Your screens go here */}
-      {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
-    </Stack.Navigator>
+    <Tab.Navigator>
+      <Tab.Screen
+        name="Home"
+        component={Screens.Home}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="Map"
+        component={Screens.Map}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={Screens.Settings}
+        options={{ headerShown: false }}
+      />
+    </Tab.Navigator>
   )
 })
 
 const AuthStack = observer(function AuthStack() {
   return (
-    <AuthStackNavigator.Navigator screenOptions={{ headerShown: false, navigationBarColor: colors.background }}>
+    <AuthStackNavigator.Navigator
+      screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
+    >
       {/* <AuthStackNavigator.Screen name="Welcome" component={Screens.WelcomeScreen} /> */}
       <AuthStackNavigator.Screen name="Login" component={Screens.Login} />
       <AuthStackNavigator.Screen name="SignUp" component={Screens.SignUp} />
@@ -80,8 +100,22 @@ export interface NavigationProps
 
 export const AppNavigator = observer(function AppNavigator(props: NavigationProps) {
   const colorScheme = useColorScheme()
-
   useBackButtonHandler((routeName) => exitRoutes.includes(routeName))
+
+  const [initializing, setInitializing] = useState<boolean>(true)
+  const [user, setUser] = useState<boolean>()
+
+  function onAuthStateChanged(user) {
+    setUser(user)
+    if (initializing) setInitializing(false)
+  }
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged)
+    return subscriber
+  }, [])
+
+  if (initializing) return null
 
   return (
     <NavigationContainer
@@ -89,7 +123,7 @@ export const AppNavigator = observer(function AppNavigator(props: NavigationProp
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
       {...props}
     >
-      <AuthStack />
+      {!user ? <AuthStack /> : <AppStack />}
     </NavigationContainer>
   )
 })

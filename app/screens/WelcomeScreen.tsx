@@ -1,28 +1,29 @@
 import { observer } from "mobx-react-lite"
 import React, { FC } from "react"
 import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
-import {
-  Text,
-} from "app/components"
+import { Text } from "app/components"
 import { isRTL } from "../i18n"
 import { AppStackScreenProps } from "../navigators"
 import { colors, spacing } from "../theme"
 import { useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
 import { Map } from "./Map/Map"
+import { TouchableOpacity } from "react-native-gesture-handler"
+import auth from "@react-native-firebase/auth"
 
 const welcomeLogo = require("../../assets/images/logo.png")
 const welcomeFace = require("../../assets/images/welcome-face.png")
 
 interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> {}
 
-export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeScreen(
-) {
-
+export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeScreen() {
   const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
 
   return (
     <View style={$container}>
-      <Map />
+      <TouchableOpacity onPress={() => auth().signOut()}>
+        <Text>hehe</Text>
+      </TouchableOpacity>
+      {/* <Map /> */}
     </View>
   )
 })
@@ -30,6 +31,8 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
 const $container: ViewStyle = {
   flex: 1,
   backgroundColor: colors.background,
+  justifyContent: "center",
+  alignItems: "center",
 }
 
 const $topContainer: ViewStyle = {
