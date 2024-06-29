@@ -8,7 +8,7 @@ export const firebaseModel = {
   signIn: (email: string, password: string) => signIn(email, password),
   signUp: (user: User) => signUp(user),
   fetchDoc: (collection: string, docId: string) => fetchDocument(collection, docId),
-  sendDoc: (collection: string, data: any) => sendDocument(collection, data),
+  sendDoc: (collection: string, docId: string, data: any) => sendDocument(collection, docId, data),
   updateDoc: (collection: string, docId: string, data: any) =>
     updateDocument(collection, docId, data),
 }
@@ -27,9 +27,17 @@ const signIn = async (email: string, password: string): Promise<void> => {
 const signUp = async (user: User): Promise<void> => {
   try {
     const res = await auth().createUserWithEmailAndPassword(user.email, user.password)
-    const userData = {...user}
+    console.log(res.user.uid)
+    const now = new Date()
+    const dateOptions = { year: "numeric", month: "short" }
+    const dateJoined = now.toLocaleDateString("en-US", dateOptions)
+    const userData = { ...user, dateJoined }
+    const id = res.user.uid
     delete userData.password
-    await sendDocument("users", {...userData, id: res.user.uid})
+    await sendDocument("users", id, { ...userData, id: id })
+      .then((res) => console.log("Sign up collection hydrated!"))
+      .catch((err) => console.log(err))
+    // delete user if send doc returns err
   } catch (err) {
     console.error("SignUp Error: ", err)
     Alert.alert("SignUp Error", err.message)
@@ -52,10 +60,10 @@ const fetchDocument = async (collection: string, docId: string): Promise<any> =>
 }
 
 // Function to send a document to Firestore
-const sendDocument = async (collection: string, data: any): Promise<void> => {
+const sendDocument = async (collection: string, docId: string, data: any): Promise<void> => {
   try {
-    const documentRef = await firestore().collection(collection).add(data)
-    console.log("Document successfully written with ID: ", documentRef.id)
+    const documentRef = await firestore().collection(collection).doc(docId).set(data)
+    console.log("Document successfully written with ID: ", documentRef)
   } catch (err) {
     console.error("SendDocument Error: ", err)
     throw new Error(`SendDocument Error: ${err.message}`)

@@ -5,8 +5,9 @@ export const UserModel = types.model("User", {
     firstName: types.optional(types.string, ""),
     lastName: types.optional(types.string, ""),
     email: types.optional(types.string, ""),
-    location: types.optional(types.string, ""),
-    trustPoints: types.optional(types.number, 0)
+    trustPoints: types.optional(types.number, 0),
+    verified: types.optional(types.boolean, false),
+    dateJoined: types.optional(types.string, '')
   })
 
 /**

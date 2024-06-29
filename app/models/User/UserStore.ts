@@ -1,6 +1,7 @@
 import { flow, Instance, SnapshotOut, types } from "mobx-state-tree"
 import { UserModel } from "./User"
 import auth from "@react-native-firebase/auth"
+import { firebaseModel } from "app/services/Firebase/firebase.service"
 
 /**
  * A UserStore model.
@@ -12,15 +13,28 @@ export const UserStoreModel = types
     state: "",
   })
   .actions((self) => {
-    const signIn = flow(function* (email: string, password: string) {
+    const getUser = flow(function* (userId: string) {
       self.state = "pending"
+      const user = yield firebaseModel.fetchDoc("users", userId)
+      // ... yield can be used in async/await style
+      self.user = user
+      self.state = "done"
+
+      // The action will return a promise that resolves to the returned value
+      // (or rejects with anything thrown from the action)
+      return user
+    })
+
+    const signOut = flow(function* () {
+      self.state = "pending"
+      auth().signOut()
     
       // ... yield can be used in async/await style
       self.state = "done"
 
       // The action will return a promise that resolves to the returned value
       // (or rejects with anything thrown from the action)
-      return
+      return true
     })
 
     const signUp = flow(function* (email: string, password: string, user: any) {
@@ -50,7 +64,7 @@ export const UserStoreModel = types
         return
       })
     
-    return { signIn, signUp }
+    return { getUser, signUp, signOut }
   })
 
 /**

@@ -15,6 +15,7 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 import { colors } from "app/theme"
 import auth from "@react-native-firebase/auth"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
+import Icon from "react-native-vector-icons/Ionicons"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -31,9 +32,9 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
  */
 export type AppStackParamList = {
   Home: undefined
-  Map: undefined,
+  Map: undefined
   Settings: undefined
-  
+
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
@@ -63,21 +64,32 @@ const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>()
 
 const AppStack = observer(function AppStack() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator screenOptions={{tabBarActiveTintColor: colors.palette.cta, tabBarShowLabel: false,}}>
       <Tab.Screen
         name="Home"
         component={Screens.Home}
-        options={{ headerShown: false }}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({color}) => <Icon name="home" size={20} color={color}/>,
+        }}
       />
       <Tab.Screen
         name="Map"
         component={Screens.Map}
-        options={{ headerShown: false }}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ focused, color }) => (
+            <Icon name="map" size={20} color={color}/>
+          ),
+        }}
       />
       <Tab.Screen
         name="Settings"
         component={Screens.Settings}
-        options={{ headerShown: false }}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({color}) => <Icon name="settings" size={20} color={color}/>,
+        }}
       />
     </Tab.Navigator>
   )

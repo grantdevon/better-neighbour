@@ -23,9 +23,9 @@ interface User {
   firstName: string
   lastName: string
   email: string
-  location: string
   password: string
   trustPoints: number
+  verified: boolean
 }
 
 interface SignUpQuestionProps {
@@ -57,9 +57,9 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
     firstName: "",
     lastName: "",
     email: "",
-    location: "",
     password: "",
-    trustPoints: 0
+    trustPoints: 0,
+    verified: false,
   })
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
@@ -93,15 +93,6 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
       setter: (value) => setUser({ ...userDetails, email: value }),
       isPassword: false,
       validate: () => validateEmail(userDetails.email),
-    },
-    {
-      question: "Enter your location",
-      description: "Almost there!",
-      placeholder: "Location",
-      value: userDetails.location,
-      setter: (value) => setUser({ ...userDetails, location: value }),
-      isPassword: false,
-      validate: () => userDetails.location.trim() !== "",
     },
     {
       question: "Enter your password",
@@ -143,9 +134,6 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
   }
 
   const validateEmail = (email: string): boolean => {
-    /**
-     * check if email already exists
-     */
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return re.test(email)
   }
