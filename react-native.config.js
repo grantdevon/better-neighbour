@@ -6,6 +6,14 @@ module.exports = {
     // "./assets/fonts/"
   ],
 
+  dependencies: {
+    'react-native-vector-icons': {
+      platforms: {
+        ios: null,
+      },
+    },
+  },
+
   // This prevents FlashList from rendering a large red box.
   // See: https://github.com/reactwg/react-native-new-architecture/discussions/135
   // Remove when FlashList fully supports the new architecture.
