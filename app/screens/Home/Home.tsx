@@ -11,19 +11,21 @@ import MapView, { Heatmap, PROVIDER_GOOGLE } from "react-native-maps"
 import { Button } from "app/components"
 import { colors } from "app/theme"
 import { useFocusEffect } from "@react-navigation/native"
+import LottieView from "lottie-react-native"
 
 type homeProps = NativeStackScreenProps<AppStackParamList, "Home">
 
-export const Home: FC<homeProps> = observer(() => {
+export const Home: FC<homeProps> = observer(({ navigation }) => {
   useHeader({
     title: "better-neighbour",
-    titleStyle: { color: colors.palette.primary, fontWeight: 'bold', fontSize: 20 },
+    titleStyle: { color: colors.palette.primary, fontWeight: "bold", fontSize: 20 },
     titleMode: "flex",
     containerStyle: { backgroundColor: colors.palette.neutral100 },
   })
 
   const {
     reportStore: { getReports, reports },
+    mapStore: { setMapState },
   } = useStores()
 
   const [loading, setLoading] = useState<boolean>(true)
@@ -60,7 +62,7 @@ export const Home: FC<homeProps> = observer(() => {
         </Text>
         <Text style={styles.locationText}>in {item.location}</Text>
         <Text style={styles.descriptionText}>{item.description}</Text>
-        
+
         <MapView
           style={styles.map}
           provider={PROVIDER_GOOGLE}
@@ -90,10 +92,35 @@ export const Home: FC<homeProps> = observer(() => {
             }}
           />
         </MapView>
-  
+
         {/* <Button preset="filled" text="trust 👍" style={styles.button} /> */}
       </View>
     )
+  }
+
+  const RenderEmptyState = () => {
+    return (
+      <View style={styles.EmptyStateCard}>
+        <Text style={styles.emptyStateText}>No activity so far!</Text>
+        <LottieView
+          source={require("../../../assets/animations/aura.json")}
+          style={styles.emptyStateLottieAnimation}
+          autoPlay
+          loop
+        />
+        <Button
+          preset="filled"
+          text="Make a report"
+          onPress={navToReport}
+          style={styles.emptyStateButton}
+        />
+      </View>
+    )
+  }
+
+  const navToReport = () => {
+    setMapState('Pin')
+    navigation.jumpTo("MapTab")
   }
 
   useFocusEffect(() => {
@@ -104,15 +131,20 @@ export const Home: FC<homeProps> = observer(() => {
 
   if (loading) {
     return (
-      <View>
-        <Text>Loading</Text>
+      <View style={styles.container}>
+        <LottieView
+        source={require('../../../assets/animations/loading.json')} 
+        autoPlay
+        loop
+        style={styles.loadingAnimation}/>
+        <Text style={styles.loadingText}>Fetching Today's Activity For You...</Text>
       </View>
     )
   }
 
   return (
     <View style={styles.container}>
-      <Header text={"Today's activity"} />
+      {reports.length !== 0 && <Header text={"Today's activity"} />}
       <FlatList
         data={reports}
         renderItem={RenderCards}
@@ -124,13 +156,7 @@ export const Home: FC<homeProps> = observer(() => {
             colors={[colors.palette.primary]}
           />
         }
-        ListEmptyComponent={() => {
-          return (
-            <View>
-              <Text>No data</Text>
-            </View>
-          )
-        }}
+        ListEmptyComponent={RenderEmptyState}
       />
     </View>
   )
@@ -142,12 +168,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   headerContainer: {
-    marginVertical: 20
+    marginVertical: 20,
   },
   headerText: {
     fontSize: 17,
-    fontWeight: '700',
-    color: colors.palette.primary
+    fontWeight: "700",
+    color: colors.palette.primary,
   },
   cardContainer: {
     marginVertical: 10,
@@ -186,5 +212,44 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
+  },
+  loadingAnimation: {
+    width: 250,
+    height: 250,
+    alignSelf: 'center'
+  },
+  loadingText: {
+    fontWeight: 'bold',
+    fontSize: 25,
+    color: colors.palette.primary,
+    textAlign: 'center',
+    flexWrap: 'wrap'
+  },
+  EmptyStateCard: {
+    paddingHorizontal: 10,
+    backgroundColor: "#ffffff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+    paddingVertical: 20,
+    marginVertical: 20,
+  },
+  emptyStateLottieAnimation: {
+    width: 320,
+    height: 200,
+    alignSelf: "center",
+    objectFit: 'contain'
+  },
+  emptyStateText: {
+    fontWeight: "bold",
+    color: colors.palette.primary,
+    paddingLeft: 10,
+    fontSize: 25,
+  },
+  emptyStateButton: {
+    borderRadius: 7,
   },
 })
