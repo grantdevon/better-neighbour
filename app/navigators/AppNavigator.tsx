@@ -32,11 +32,16 @@ import Icon from "react-native-vector-icons/Ionicons"
  */
 export type AppStackParamList = {
   Home: undefined
-  Map: undefined
+  MapTab: undefined
   Settings: undefined
 
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
+}
+
+export type MapStackParamList = {
+  Map: undefined
+  Report: {lat:number, lng: number}
 }
 
 export type AuthStackParamList = {
@@ -59,28 +64,41 @@ export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStack
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<AppStackParamList>()
 const Tab = createBottomTabNavigator<AppStackParamList>()
+const MapStackNavigator = createNativeStackNavigator<MapStackParamList>()
 
 const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>()
 
+const MapStack = observer(function MapStack() {
+  return (
+    <MapStackNavigator.Navigator
+      screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
+    >
+      {/* <MapStackNavigator.Screen name="Welcome" component={Screens.WelcomeScreen} /> */}
+      <MapStackNavigator.Screen name="Map" component={Screens.Map} />
+      <MapStackNavigator.Screen name="Report" component={Screens.Report} />
+    </MapStackNavigator.Navigator>
+  )
+})
+
 const AppStack = observer(function AppStack() {
   return (
-    <Tab.Navigator screenOptions={{tabBarActiveTintColor: colors.palette.cta, tabBarShowLabel: false,}}>
+    <Tab.Navigator
+      screenOptions={{ tabBarActiveTintColor: colors.palette.primary, tabBarShowLabel: false }}
+    >
       <Tab.Screen
         name="Home"
         component={Screens.Home}
         options={{
           headerShown: false,
-          tabBarIcon: ({color}) => <Icon name="home" size={20} color={color}/>,
+          tabBarIcon: ({ color }) => <Icon name="home" size={20} color={color} />,
         }}
       />
       <Tab.Screen
-        name="Map"
-        component={Screens.Map}
+        name="MapTab"
+        component={MapStack}
         options={{
           headerShown: false,
-          tabBarIcon: ({ focused, color }) => (
-            <Icon name="map" size={20} color={color}/>
-          ),
+          tabBarIcon: ({ focused, color }) => <Icon name="map" size={20} color={color} />,
         }}
       />
       <Tab.Screen
@@ -88,7 +106,7 @@ const AppStack = observer(function AppStack() {
         component={Screens.Settings}
         options={{
           headerShown: false,
-          tabBarIcon: ({color}) => <Icon name="settings" size={20} color={color}/>,
+          tabBarIcon: ({ color }) => <Icon name="settings" size={20} color={color} />,
         }}
       />
     </Tab.Navigator>

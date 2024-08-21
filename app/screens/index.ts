@@ -5,5 +5,6 @@ export * from "./SignUp/SignUp"
 export * from "./Settings/Settings"
 export * from "./Map/Map"
 export * from "./Home/Home"
+export * from "./Report/Report"
 
 // export other screens here

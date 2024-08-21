@@ -8,7 +8,9 @@ export const firebaseModel = {
   signIn: (email: string, password: string) => signIn(email, password),
   signUp: (user: User) => signUp(user),
   fetchDoc: (collection: string, docId: string) => fetchDocument(collection, docId),
+  fetchDocByDate: (collection: string, date: string) => fetchDocumentsByDate(collection, date),
   sendDoc: (collection: string, docId: string, data: any) => sendDocument(collection, docId, data),
+  createDoc: (collection: string, data: any) => createDocument(collection, data),
   updateDoc: (collection: string, docId: string, data: any) =>
     updateDocument(collection, docId, data),
 }
@@ -59,11 +61,42 @@ const fetchDocument = async (collection: string, docId: string): Promise<any> =>
   }
 }
 
+const fetchDocumentsByDate = async (collection: string, dateValue: string): Promise<any[]> => {
+  try {
+    const querySnapshot = await firestore()
+      .collection(collection)
+      .where("date", "==", dateValue)
+      .get()
+
+    if (!querySnapshot.empty) {
+      const documents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      return documents
+    } else {
+      console.log("No matching documents found.")
+      return []
+    }
+  } catch (err) {
+    console.error("FetchDocumentsByDate Error: ", err)
+    throw new Error(`FetchDocumentsByDate Error: ${err.message}`)
+  }
+}
+
+
 // Function to send a document to Firestore
 const sendDocument = async (collection: string, docId: string, data: any): Promise<void> => {
   try {
-    const documentRef = await firestore().collection(collection).doc(docId).set(data)
-    console.log("Document successfully written with ID: ", documentRef)
+    await firestore().collection(collection).doc(docId).set(data)
+    console.log("Document successfully written with ID: ")
+  } catch (err) {
+    console.error("SendDocument Error: ", err)
+    throw new Error(`SendDocument Error: ${err.message}`)
+  }
+}
+
+const createDocument = async (collection: string, data: any): Promise<void> => {
+  try {
+    await firestore().collection(collection).add(data)
+    console.log("Document successfully written with ID: ")
   } catch (err) {
     console.error("SendDocument Error: ", err)
     throw new Error(`SendDocument Error: ${err.message}`)

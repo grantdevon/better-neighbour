@@ -206,7 +206,7 @@ const $viewPresets = {
     },
   ] as StyleProp<ViewStyle>,
 
-  filled: [$baseViewStyle, { backgroundColor: colors.palette.cta }] as StyleProp<ViewStyle>,
+  filled: [$baseViewStyle, { backgroundColor: colors.palette.primary }] as StyleProp<ViewStyle>,
 
   reversed: [
     $baseViewStyle,
