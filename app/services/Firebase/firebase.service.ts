@@ -21,7 +21,7 @@ const signIn = async (email: string, password: string): Promise<void> => {
     await auth().signInWithEmailAndPassword(email, password)
   } catch (err) {
     console.error("SignIn Error: ", err)
-    Alert.alert("SignIn Error", err.message)
+    Alert.alert("Sign in Error", err.message)
   }
 }
 
@@ -29,7 +29,6 @@ const signIn = async (email: string, password: string): Promise<void> => {
 const signUp = async (user: User): Promise<void> => {
   try {
     const res = await auth().createUserWithEmailAndPassword(user.email, user.password)
-    console.log(res.user.uid)
     const now = new Date()
     const dateOptions = { year: "numeric", month: "short" }
     const dateJoined = now.toLocaleDateString("en-US", dateOptions)

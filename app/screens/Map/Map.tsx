@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, Text, View } from "react-native"
+import { Alert, StyleSheet, View } from "react-native"
 import React, { FC, useCallback, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
@@ -6,14 +6,15 @@ import { MapStackParamList } from "app/navigators"
 import MapView, { Heatmap, Marker, PROVIDER_GOOGLE } from "react-native-maps"
 import { FAB } from "@rneui/themed"
 import { colors } from "app/theme"
-import Geolocation from "@react-native-community/geolocation"
 import { useStores } from "app/models"
 import { getFormattedDate } from "app/utils/formatDate"
 import { useFocusEffect } from "@react-navigation/native"
+import * as Location from "expo-location"
+import Toast from "react-native-toast-message"
 
 type mapProps = NativeStackScreenProps<MapStackParamList, "Map">
 
-type ReportType = "Suspicous Activity" | "Crime"
+type ReportType = "Suspicious Activity" | "Crime"
 
 type MapState = "Pin" | "HeatMap"
 
@@ -39,15 +40,18 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
     longitude: 0,
   })
   const [heatMapData, setHeatMapData] = useState<[]>([])
-  const [report, setReport] = useState<ReportProps | null>(null)
+
+  const [location, setLocation] = useState<Location.LocationObject | null>(null)
 
   const pinPoint = () => {
-    // setCoords({
-    //   latitude: coords.latitude,
-    //   longitude: coords.longitude,
-    // })
-    // show toast that says hold to move marker
     const state: MapState = mapState === "HeatMap" ? "Pin" : "HeatMap"
+    if (mapState === "HeatMap") {
+      Toast.show({
+        type: "info",
+        text1: "hold to drag marker",
+        visibilityTime: 3000,
+      })
+    }
     setMapState(state)
   }
 
@@ -73,7 +77,8 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
 
   const updateMapData = async () => {
     try {
-      await getReports("reports", getFormattedDate())
+      let coords = { lat: location?.coords.latitude, lng: location?.coords.longitude }
+      await getReports("reports", getFormattedDate(), coords)
       if (reports) {
         let tempHeatMapArr: [] = []
         reports.forEach((report) => {
@@ -93,21 +98,22 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
   }
 
   useEffect(() => {
-    Geolocation.getCurrentPosition(
-      (result) => {
-        setCoords({
-          latitude: result.coords.latitude,
-          longitude: result.coords.longitude,
-        })
-      },
-      (err) => {
-        setCoords({
-          latitude: 0,
-          longitude: 0,
-        })
-        Alert.alert("Could not find location. Please make sure the app has permission")
-      },
-    )
+    async function getCurrentLocation() {
+      let { status } = await Location.requestForegroundPermissionsAsync()
+      if (status !== "granted") {
+        Alert.alert("Permission to access location was denied")
+        return
+      }
+
+      let location = await Location.getCurrentPositionAsync({})
+      setCoords({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      })
+      setLocation(location)
+    }
+
+    getCurrentLocation()
   }, [])
 
   useFocusEffect(
@@ -119,6 +125,7 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
   return (
     <View style={styles.container}>
       <MapView
+        mapType="standard"
         style={styles.map}
         provider={PROVIDER_GOOGLE}
         region={{
@@ -127,12 +134,14 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
           latitudeDelta: 0.015,
           longitudeDelta: 0.0121,
         }}
-        // onRegionChangeComplete={(region) => {
-        //   setCoords({
-        //     latitude: region.latitude,
-        //     longitude: region.longitude,
-        //   })
-        // }}
+        onRegionChangeComplete={(region) => {
+          // if (mapState === "Pin") {
+          // setCoords({
+          //   latitude: region.latitude,
+          //   longitude: region.longitude,
+          // })
+          // }
+        }}
       >
         {mapState === "Pin" ? (
           <Marker
@@ -141,25 +150,25 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
             onDragEnd={(e) => confirmEvent(e.nativeEvent.coordinate)}
             onPress={(e) => confirmEvent(e.nativeEvent.coordinate)}
           />
-        ) : (
+        ) : heatMapData.length > 0 ? (
           <Heatmap
             points={heatMapData}
             opacity={0.8}
-            radius={100}
+            radius={50}
             gradient={{
-              colors: ["rgba(255, 0, 0, 1)", "rgba(255, 0, 0, 1)", "rgba(255, 0, 0, 1)"],
-              startPoints: [0.1, 0.1, 1.0], // Adjust the distribution of colors
-              colorMapSize: 256, // Size of the gradient color map
+              colors: ["#EEC20B", "#F29305", "#E50000"],
+              startPoints: [0.5, 0.75, 1],
+              colorMapSize: 500,
             }}
           />
-        )}
+        ) : null}
       </MapView>
       <FAB
         onPress={pinPoint}
         placement="right"
-        title={mapState === "HeatMap" ? "Report" : "HeatMap"}
+        title={mapState === "HeatMap" ? "Make a report" : "HeatMap"}
         icon={{ name: mapState === "HeatMap" ? "warning" : "map", color: "white" }}
-        color={colors.palette.primary}
+        color={colors.palette.angry500}
       />
     </View>
   )

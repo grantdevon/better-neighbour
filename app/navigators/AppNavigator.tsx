@@ -16,6 +16,7 @@ import { colors } from "app/theme"
 import auth from "@react-native-firebase/auth"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import Icon from "react-native-vector-icons/Ionicons"
+import Toast from "react-native-toast-message"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -32,16 +33,21 @@ import Icon from "react-native-vector-icons/Ionicons"
  */
 export type AppStackParamList = {
   Home: undefined
-  MapTab: undefined
+  MapTab: coords | undefined
   Settings: undefined
 
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
+type coords = {
+  latitude: number
+  longitude: number
+}
+
 export type MapStackParamList = {
   Map: undefined
-  Report: {lat:number, lng: number}
+  Report: { lat: number; lng: number }
 }
 
 export type AuthStackParamList = {
@@ -154,6 +160,7 @@ export const AppNavigator = observer(function AppNavigator(props: NavigationProp
       {...props}
     >
       {!user ? <AuthStack /> : <AppStack />}
+      <Toast /> 
     </NavigationContainer>
   )
 })

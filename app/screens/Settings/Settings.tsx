@@ -1,4 +1,4 @@
-import { Alert, SafeAreaView, StyleSheet, Text, View, ScrollView } from "react-native"
+import { Alert, SafeAreaView, StyleSheet, View } from "react-native"
 import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
@@ -10,6 +10,7 @@ import { User } from "app/models/User/User"
 import { useStores } from "app/models"
 import auth from "@react-native-firebase/auth"
 import SettingsLoader from "./Settings.loader"
+import { Screen, Text } from "app/components"
 
 type settingsProps = NativeStackScreenProps<AppStackParamList, "Settings">
 
@@ -17,6 +18,7 @@ interface ActionProps {
   title: string
   icon?: string
   action: () => any
+  type?: "danger" | "primary" | "secondary"
 }
 
 export const Settings: FC<settingsProps> = observer(() => {
@@ -24,12 +26,11 @@ export const Settings: FC<settingsProps> = observer(() => {
     userStore: { getUser, signOut, user },
   } = useStores()
 
-  // Use state to manage the action array
   const [actionArray, setActionArray] = useState<ActionProps[]>([
-    { title: "Share", icon: "share", action: () => {} },
-    { title: "Donate", icon: "gift", action: () => {} },
-    { title: "Sign out", icon: "log-out", action: () => signOutUser() },
-    { title: "Delete my account", icon: "trash", action: () => {} },
+    { title: "Share with friends", icon: "share-social", action: () => {}, type: "primary" },
+    { title: "Support our mission", icon: "heart", action: () => {}, type: "primary" },
+    { title: "Sign out", icon: "log-out", action: () => signOutUser(), type: "secondary" },
+    { title: "Delete my account", icon: "trash", action: () => {}, type: "danger" },
   ])
 
   const [loading, setLoading] = useState<boolean>(true)
@@ -37,17 +38,57 @@ export const Settings: FC<settingsProps> = observer(() => {
   const Profile = ({ user }: { user: User }) => {
     return (
       <View style={styles.profileContainer}>
-        <View style={styles.profileDetails}>
-          <Text style={styles.profileTitle}>{user.firstName + " " + user.lastName}</Text>
-          <Text style={styles.details}>Better Neighbour since {user.dateJoined}</Text>
-          <Text style={styles.details}>
-            Email verified {auth().currentUser?.emailVerified ? "✅" : "❌"}
-          </Text>
+        <View style={styles.avatarContainer}>
+          <Text text={`${user.firstName[0]}${user.lastName[0]}`} style={styles.avatarText} />
         </View>
-
-        <View style={styles.profileTrustPointsContainer}>
-          <Text style={styles.trustPointsTitle}>Trust Points</Text>
-          <Text style={styles.trustPoints}>{user.trustPoints}</Text>
+        <View style={styles.profileDetails}>
+          <Text
+            text={`${user.firstName} ${user.lastName}`}
+            preset="heading"
+            size="xxl"
+            style={styles.heading}
+          />
+          <View style={styles.membershipContainer}>
+            <Icon
+              name="star"
+              size={16}
+              color={colors.palette.neutral700}
+              style={styles.memberIcon}
+            />
+            <Text
+              text={`Member since ${user.dateJoined}`}
+              preset="subheading"
+              size="md"
+              weight="medium"
+              style={styles.memberText}
+            />
+          </View>
+          <View style={styles.verificationContainer}>
+            <Icon
+              name={auth().currentUser?.emailVerified ? "checkmark-circle" : "alert-circle"}
+              size={16}
+              color={
+                auth().currentUser?.emailVerified
+                  ? colors.palette.primary300
+                  : colors.palette.angry500
+              }
+              style={styles.verifyIcon}
+            />
+            <Text
+              text={`Email ${auth().currentUser?.emailVerified ? "verified" : "not verified"}`}
+              preset="subheading"
+              size="md"
+              weight="medium"
+              style={[
+                styles.verifyText,
+                {
+                  color: auth().currentUser?.emailVerified
+                    ? colors.palette.primary300
+                    : colors.palette.angry500,
+                },
+              ]}
+            />
+          </View>
         </View>
       </View>
     )
@@ -55,13 +96,37 @@ export const Settings: FC<settingsProps> = observer(() => {
 
   const ActionItem = ({ action }: { action: ActionProps }) => {
     return (
-      <View>
-        <TouchableOpacity style={styles.action} onPress={action.action}>
-          <Icon style={styles.actionIcon} name={action.icon} size={17} />
-          <Text style={styles.actionText}>{action.title}</Text>
-        </TouchableOpacity>
-        <View style={styles.actionSeparator} />
-      </View>
+      <TouchableOpacity
+        style={[
+          styles.action,
+          action.type === "danger" && styles.actionDanger,
+          action.type === "secondary" && styles.actionSecondary,
+        ]}
+        onPress={action.action}
+      >
+        <View style={styles.actionContent}>
+          <Icon
+            name={action.icon}
+            size={20}
+            color={action.type === "danger" ? colors.palette.angry500 : colors.palette.primary300}
+            style={styles.actionIcon}
+          />
+          <Text
+            text={action.title}
+            style={[
+              styles.actionText,
+              action.type === "danger" && styles.actionTextDanger,
+              action.type === "secondary" && styles.actionTextSecondary,
+            ]}
+          />
+        </View>
+        <Icon
+          name="chevron-forward"
+          size={20}
+          color={action.type === "danger" ? colors.palette.angry500 : colors.palette.neutral400}
+          style={styles.actionArrow}
+        />
+      </TouchableOpacity>
     )
   }
 
@@ -76,21 +141,26 @@ export const Settings: FC<settingsProps> = observer(() => {
   }
 
   const signOutUser = (): void => {
-    Alert.alert("Are you sure you want to sign out?", undefined, [
-      {
-        text: "Yes",
-        onPress: () => signOut(),
-      },
-      { text: "Cancel", onPress: () => {} },
-    ])
+    Alert.alert(
+      "Sign out",
+      "Are you sure you want to sign out?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Sign out", onPress: () => signOut(), style: "destructive" },
+      ],
+      { cancelable: true },
+    )
   }
 
   const verifyEmail = async (): Promise<void> => {
     try {
       await auth().currentUser?.sendEmailVerification()
-      Alert.alert("Please check your email to complete the verification process")
+      Alert.alert(
+        "Verification email sent",
+        "Please check your email to complete the verification process",
+      )
     } catch (error) {
-      Alert.alert("An error occurred, please try again later.")
+      Alert.alert("Error", "An error occurred, please try again later.")
     }
   }
 
@@ -102,8 +172,10 @@ export const Settings: FC<settingsProps> = observer(() => {
         await getUser(id)
         if (!auth().currentUser?.emailVerified) {
           setActionArray((prevArray) => {
-            const newArray = [...prevArray]
-            newArray.unshift({ title: "Verify Email", icon: "mail", action: () => verifyEmail() })
+            const newArray = [
+              { title: "Verify Email", icon: "mail", action: () => verifyEmail(), type: "primary" },
+              ...prevArray,
+            ]
             return newArray
           })
         }
@@ -120,63 +192,106 @@ export const Settings: FC<settingsProps> = observer(() => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
+    <SafeAreaView style={{flex: 1, backgroundColor: colors.palette.neutral100}}>
+      <Screen preset="scroll"  style={styles.screen}>
         <Profile user={user} />
         <Actions />
-      </ScrollView>
+      </Screen>
     </SafeAreaView>
   )
 })
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  screen: {
+    backgroundColor: colors.palette.neutral100,
   },
-  actionsContainer: { flex: 1, marginVertical: 20 },
-  action: {
-    marginTop: 13,
-    marginBottom: 5,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    marginHorizontal: 10,
-  },
-  actionText: { fontWeight: "bold" },
-  actionIcon: { paddingLeft: 17, paddingRight: 27, justifyContent: "center" },
-  actionSeparator: { borderWidth: 0.5, marginHorizontal: 17 },
   profileContainer: {
-    marginBottom: 10,
-    marginTop: 30,
+    paddingTop: 30,
+    paddingBottom: 20,
+    alignItems: "center",
+    backgroundColor: colors.palette.neutral100,
+  },
+  avatarContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.palette.primary300,
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  avatarText: {
+    color: colors.palette.neutral100,
+    fontSize: 21,
+    fontWeight: "bold",
+    textAlign: "center"
   },
   profileDetails: {
-    justifyContent: "center",
     alignItems: "center",
   },
-  profileTitle: {
-    fontSize: 30,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginVertical: 10,
+  heading: {
+    color: colors.palette.neutral800,
+    marginBottom: 8,
   },
-  profileTrustPointsContainer: {
-    justifyContent: "center",
+  membershipContainer: {
+    flexDirection: "row",
     alignItems: "center",
-    borderWidth: 2,
-    paddingVertical: 20,
-    marginTop: 20,
-    marginHorizontal: 20,
-    borderRadius: 7,
+    marginBottom: 8,
   },
-  trustPointsTitle: {
-    fontSize: 15,
-    fontWeight: "bold",
-    marginBottom: 5,
+  memberIcon: {
+    marginRight: 6,
   },
-  details: {
-    marginBottom: 5,
+  memberText: {
+    color: colors.palette.neutral600,
   },
-  trustPoints: {
-    color: colors.palette.primary,
+  verificationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  verifyIcon: {
+    marginRight: 6,
+  },
+  verifyText: {
+    fontWeight: "500",
+  },
+  actionsContainer: {
+    backgroundColor: colors.palette.neutral100,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  action: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: colors.palette.neutral200,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  actionContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  actionIcon: {
+    marginRight: 12,
+  },
+  actionText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.palette.neutral800,
+  },
+  actionArrow: {
+    opacity: 0.5,
+  },
+  actionDanger: {
+    backgroundColor: colors.palette.angry100,
+  },
+  actionSecondary: {
+    backgroundColor: colors.palette.neutral200,
+  },
+  actionTextDanger: {
+    color: colors.palette.angry500,
+  },
+  actionTextSecondary: {
+    color: colors.palette.neutral600,
   },
 })

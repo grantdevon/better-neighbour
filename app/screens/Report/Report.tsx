@@ -18,7 +18,7 @@ import {
 import { Dropdown } from "react-native-element-dropdown"
 import { TextInput } from "react-native-gesture-handler"
 
-type ReportType = "Suspicous Activity" | "Crime"
+type ReportType = "Suspicious Activity" | "Crime"
 
 interface IReportType {
   label: ReportType
@@ -64,14 +64,13 @@ export const Report: FC = observer(({ navigation, route }) => {
   const [isFocus, setIsFocus] = useState<boolean>(false)
 
   const dropDownData: IReportType[] = [
-    { label: "Suspicous Activity", value: "Suspicous Activity" },
+    { label: "Suspicious Activity", value: "Suspicious Activity" },
     { label: "Crime", value: "Crime" },
   ]
 
   useHeader(
     {
       title: "Make a report",
-      leftIconColor: "white",
       leftIcon: "back",
       onLeftPress: () => navigation.navigate("Map"),
     },
@@ -86,8 +85,6 @@ export const Report: FC = observer(({ navigation, route }) => {
   }
 
   const makeReport = async () => {
-    console.log(coords)
-
     if (validated()) {
       const data: IReport = {
         userId: user.id,
@@ -104,8 +101,8 @@ export const Report: FC = observer(({ navigation, route }) => {
         await firebaseModel.createDoc("reports", data)
         await getReports("reports", getFormattedDate())
         setMapState('HeatMap')
-        setLoading(false)
         navigation.navigate("Map")
+        setLoading(false)
       } catch (error) {
         console.error(error)
         setLoading(false)
@@ -119,7 +116,7 @@ export const Report: FC = observer(({ navigation, route }) => {
   if (loading) {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size={"large"} color={colors.palette.primary} />
+        <ActivityIndicator size={"large"} color={colors.palette.neutral800} />
         <Text>Making a report...</Text>
       </SafeAreaView>
     )
@@ -162,13 +159,12 @@ export const Report: FC = observer(({ navigation, route }) => {
             placeholder="Describe the scene"
             value={description}
             onChangeText={setDescription}
-            numberOfLines={10}
             style={styles.inputDescription}
           />
         </View>
 
         <View style={styles.buttonContainer}>
-          <Button preset="filled" text="Make Report" onPress={makeReport} />
+        <Button preset="filled" text="Make Report" onPress={makeReport} style={{backgroundColor: colors.palette.primary400, borderRadius: 10}} textStyle={{color: colors.palette.neutral100}}/>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -211,7 +207,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   inputDescription: {
-    minHeight: 100,
+    // minHeight: 100,
     borderWidth: 1,
     borderRadius: 7,
     borderColor: "grey",
