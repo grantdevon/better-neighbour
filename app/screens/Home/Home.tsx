@@ -7,7 +7,7 @@ import { useHeader } from "app/utils/useHeader"
 import { FlatList } from "react-native-gesture-handler"
 import { useStores } from "app/models"
 import { getFormattedDate } from "app/utils/formatDate"
-import { Button } from "app/components"
+import { Button, Text as TX } from "app/components"
 import { colors } from "app/theme"
 import LottieView from "lottie-react-native"
 import { ReportCard } from "app/components/ReportCard"
@@ -132,7 +132,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
     async function getCurrentLocation() {
       let { status } = await Location.requestForegroundPermissionsAsync()
       if (status !== "granted") {
-        Alert.alert("Permission to access location was denied")
+        Alert.alert("Permission to access location was denied, please allow location permission.")
         return
       }
 
@@ -187,7 +187,12 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
         }
         ListEmptyComponent={RenderEmptyState}
       />
-      <ActionSheet ref={actionSheetRef} snapPoints={[70]} containerStyle={{ height: "100%", padding:20 }}>
+      <ActionSheet
+        ref={actionSheetRef}
+        snapPoints={[50]}
+        containerStyle={{ height: "100%", padding: 20 }}
+      >
+        <TX text="Activity location" preset="heading" size="xl" style={{ paddingBottom: 10 }} />
         <MapView
           region={{
             latitude: heatMap[0].latitude,
@@ -196,13 +201,13 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
             longitudeDelta: 0.0121,
           }}
           provider={PROVIDER_GOOGLE}
-          minZoomLevel={15}
+          maxZoomLevel={17}
           style={styles.map}
         >
           <Heatmap
             points={heatMap}
             opacity={0.8}
-            radius={50}
+            radius={300}
             gradient={{
               colors: ["#EEC20B", "#F29305", "#E50000"],
               startPoints: [0.5, 0.75, 1],
@@ -308,7 +313,7 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontWeight: "bold",
-    color: colors.palette.neutral800,
+    color: colors.palette.neutral700,
     paddingLeft: 10,
     fontSize: 25,
   },

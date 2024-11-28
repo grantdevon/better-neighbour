@@ -13,6 +13,7 @@ export const firebaseModel = {
   createDoc: (collection: string, data: any) => createDocument(collection, data),
   updateDoc: (collection: string, docId: string, data: any) =>
     updateDocument(collection, docId, data),
+  deleteUser: () => deleteUserAccount(),
 }
 
 // Function to sign in a user
@@ -23,6 +24,17 @@ const signIn = async (email: string, password: string): Promise<void> => {
     console.error("SignIn Error: ", err)
     Alert.alert("Sign in Error", err.message)
   }
+}
+
+const deleteUserAccount = () => {
+  auth()
+    .currentUser?.delete()
+    .then((res) => {
+      Alert.alert("", "Your account has been successfuly deleted!")
+    })
+    .catch((err) => {
+      Alert.alert("", "There was an issue deleting your account. Please try again later.")
+    })
 }
 
 // Function to sign up a new user
@@ -68,7 +80,7 @@ const fetchDocumentsByDate = async (collection: string, dateValue: string): Prom
       .get()
 
     if (!querySnapshot.empty) {
-      const documents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      const documents = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
       return documents
     } else {
       console.log("No matching documents found.")
@@ -79,7 +91,6 @@ const fetchDocumentsByDate = async (collection: string, dateValue: string): Prom
     throw new Error(`FetchDocumentsByDate Error: ${err.message}`)
   }
 }
-
 
 // Function to send a document to Firestore
 const sendDocument = async (collection: string, docId: string, data: any): Promise<void> => {

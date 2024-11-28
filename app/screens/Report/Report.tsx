@@ -3,6 +3,7 @@ import { useStores } from "app/models"
 import { firebaseModel } from "app/services/Firebase/firebase.service"
 import { colors } from "app/theme"
 import { getFormattedDate } from "app/utils/formatDate"
+import { southAfricaSuburbs } from "app/utils/location"
 import { useHeader } from "app/utils/useHeader"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
@@ -28,11 +29,11 @@ interface IReportType {
 interface IReport {
   userId: string
   name: string
-  location: string
+  location: string | null
   reportType: string
   date: string
   description: string
-  coords: ICoords,
+  coords: ICoords
   time: string
 }
 
@@ -52,7 +53,6 @@ export const Report: FC = observer(({ navigation, route }) => {
     reportStore: { getReports },
   } = useStores()
 
-  const [location, setLocation] = useState<string>("")
   const [description, setDescription] = useState<string>("")
 
   const [loading, setLoading] = useState<boolean>(false)
@@ -62,6 +62,12 @@ export const Report: FC = observer(({ navigation, route }) => {
    */
   const [value, setValue] = useState<string | null>(null)
   const [isFocus, setIsFocus] = useState<boolean>(false)
+
+  /**
+   * for location drop down
+   */
+  const [locationValue, setLocationValue] = useState<string | null>(null)
+  const [isLocationInFocus, setIsLocationInFocus] = useState<boolean>(false)
 
   const dropDownData: IReportType[] = [
     { label: "Suspicious Activity", value: "Suspicious Activity" },
@@ -79,7 +85,7 @@ export const Report: FC = observer(({ navigation, route }) => {
 
   const validated = (): boolean => {
     if (!value) return false
-    if (!location) return false
+    if (!locationValue) return false
     if (!description) return false
     return true
   }
@@ -90,7 +96,7 @@ export const Report: FC = observer(({ navigation, route }) => {
         userId: user.id,
         name: user.firstName,
         description: description,
-        location: location,
+        location: locationValue,
         reportType: value as string,
         date: getFormattedDate(),
         time: new Date().toTimeString(),
@@ -99,8 +105,8 @@ export const Report: FC = observer(({ navigation, route }) => {
       try {
         setLoading(true)
         await firebaseModel.createDoc("reports", data)
-        await getReports("reports", getFormattedDate())
-        setMapState('HeatMap')
+        await getReports("reports", getFormattedDate(), coords)
+        setMapState("HeatMap")
         navigation.navigate("Map")
         setLoading(false)
       } catch (error) {
@@ -146,11 +152,24 @@ export const Report: FC = observer(({ navigation, route }) => {
             }}
           />
           <Text style={styles.inputLabel}>Location</Text>
-          <TextInput
-            placeholder="The Area"
-            value={location}
-            onChangeText={setLocation}
-            style={styles.input}
+          <Dropdown
+            style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            inputSearchStyle={styles.inputSearchStyle}
+            search
+            data={southAfricaSuburbs}
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            placeholder={!isLocationInFocus ? "Select Location" : "..."}
+            value={locationValue}
+            onFocus={() => setIsLocationInFocus(true)}
+            onBlur={() => setIsLocationInFocus(false)}
+            onChange={(item) => {
+              setLocationValue(item.value)
+              setIsLocationInFocus(false)
+            }}
           />
           <Text style={styles.inputLabel}>Description</Text>
           <TextInput
@@ -164,7 +183,13 @@ export const Report: FC = observer(({ navigation, route }) => {
         </View>
 
         <View style={styles.buttonContainer}>
-        <Button preset="filled" text="Make Report" onPress={makeReport} style={{backgroundColor: colors.palette.primary400, borderRadius: 10}} textStyle={{color: colors.palette.neutral100}}/>
+          <Button
+            preset="filled"
+            text="Make Report"
+            onPress={makeReport}
+            style={{ backgroundColor: colors.palette.primary400, borderRadius: 10 }}
+            textStyle={{ color: colors.palette.neutral100 }}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -207,12 +232,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   inputDescription: {
-    // minHeight: 100,
     borderWidth: 1,
     borderRadius: 7,
     borderColor: "grey",
     paddingHorizontal: 10,
     paddingVertical: 20,
+    paddingTop: 15
   },
   inputSearchStyle: {
     height: 40,

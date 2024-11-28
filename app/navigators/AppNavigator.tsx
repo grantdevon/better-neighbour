@@ -34,7 +34,7 @@ import Toast from "react-native-toast-message"
 export type AppStackParamList = {
   Home: undefined
   MapTab: coords | undefined
-  Settings: undefined
+  SettingsTab: undefined
 
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
@@ -48,6 +48,10 @@ type coords = {
 export type MapStackParamList = {
   Map: undefined
   Report: { lat: number; lng: number }
+}
+export type SettingsStackParamList = {
+  Settings: undefined
+  Feedback: undefined
 }
 
 export type AuthStackParamList = {
@@ -71,6 +75,7 @@ export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStack
 const Stack = createNativeStackNavigator<AppStackParamList>()
 const Tab = createBottomTabNavigator<AppStackParamList>()
 const MapStackNavigator = createNativeStackNavigator<MapStackParamList>()
+const SettingsStackNavigator = createNativeStackNavigator<SettingsStackParamList>()
 
 const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>()
 
@@ -86,10 +91,22 @@ const MapStack = observer(function MapStack() {
   )
 })
 
+const SettingsStack = observer(function SettingsStack() {
+  return (
+    <SettingsStackNavigator.Navigator
+      screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
+    >
+      {/* <MapStackNavigator.Screen name="Welcome" component={Screens.WelcomeScreen} /> */}
+      <SettingsStackNavigator.Screen name="Settings" component={Screens.Settings} />
+      <SettingsStackNavigator.Screen name="Feedback" component={Screens.Feedback} />
+    </SettingsStackNavigator.Navigator>
+  )
+})
+
 const AppStack = observer(function AppStack() {
   return (
     <Tab.Navigator
-      screenOptions={{ tabBarActiveTintColor: colors.palette.primary, tabBarShowLabel: false }}
+      screenOptions={{ tabBarActiveTintColor: colors.palette.primary300, tabBarShowLabel: false }}
     >
       <Tab.Screen
         name="Home"
@@ -108,8 +125,8 @@ const AppStack = observer(function AppStack() {
         }}
       />
       <Tab.Screen
-        name="Settings"
-        component={Screens.Settings}
+        name="SettingsTab"
+        component={SettingsStack}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => <Icon name="settings" size={20} color={color} />,
@@ -160,7 +177,7 @@ export const AppNavigator = observer(function AppNavigator(props: NavigationProp
       {...props}
     >
       {!user ? <AuthStack /> : <AppStack />}
-      <Toast /> 
+      <Toast />
     </NavigationContainer>
   )
 })

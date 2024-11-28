@@ -11,6 +11,7 @@ import { useStores } from "app/models"
 import auth from "@react-native-firebase/auth"
 import SettingsLoader from "./Settings.loader"
 import { Screen, Text } from "app/components"
+import { firebaseModel } from "app/services/Firebase/firebase.service"
 
 type settingsProps = NativeStackScreenProps<AppStackParamList, "Settings">
 
@@ -21,19 +22,48 @@ interface ActionProps {
   type?: "danger" | "primary" | "secondary"
 }
 
-export const Settings: FC<settingsProps> = observer(() => {
+const pkg = require("../../../package.json")
+
+const appVersion = pkg.version
+
+export const Settings: FC<settingsProps> = observer(({navigation}) => {
   const {
     userStore: { getUser, signOut, user },
   } = useStores()
 
   const [actionArray, setActionArray] = useState<ActionProps[]>([
-    { title: "Share with friends", icon: "share-social", action: () => {}, type: "primary" },
-    { title: "Support our mission", icon: "heart", action: () => {}, type: "primary" },
+    {
+      title: "Give feedback ❤️",
+      icon: "clipboard-outline",
+      action: () => navigation.navigate("Feedback"),
+      type: "primary",
+    },
+    {
+      title: "Share with friends",
+      icon: "share-social",
+      action: () => actionDisabledAlert(),
+      type: "primary",
+    },
+    {
+      title: "Support our mission",
+      icon: "heart",
+      action: () => actionDisabledAlert(),
+      type: "primary",
+    },
     { title: "Sign out", icon: "log-out", action: () => signOutUser(), type: "secondary" },
-    { title: "Delete my account", icon: "trash", action: () => {}, type: "danger" },
+    {
+      title: "Delete my account",
+      icon: "trash",
+      action: () => deleteUserAccount(),
+      type: "danger",
+    },
   ])
 
   const [loading, setLoading] = useState<boolean>(true)
+
+  const actionDisabledAlert = () => {
+    Alert.alert("", "This function is disabled during beta")
+  }
 
   const Profile = ({ user }: { user: User }) => {
     return (
@@ -152,6 +182,24 @@ export const Settings: FC<settingsProps> = observer(() => {
     )
   }
 
+  const deleteUserAccount = () => {
+    Alert.alert(
+      "Delete account?",
+      "Are you sure you want to delete your account? This action cannot be reversed!",
+      [
+        {
+          text: "Yes I am sure",
+          onPress: () => firebaseModel.deleteUser(),
+          style: "destructive"
+        },
+        {
+          text: "Cancel",
+          onPress: () => {}
+        }
+      ]
+    )
+  }
+
   const verifyEmail = async (): Promise<void> => {
     try {
       await auth().currentUser?.sendEmailVerification()
@@ -192,10 +240,16 @@ export const Settings: FC<settingsProps> = observer(() => {
   }
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: colors.palette.neutral100}}>
-      <Screen preset="scroll"  style={styles.screen}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.palette.neutral100 }}>
+      <Screen preset="scroll" style={styles.screen}>
         <Profile user={user} />
         <Actions />
+        <Text
+          text={`app version: ${appVersion} - BETA`}
+          preset="subheading"
+          size="xs"
+          style={styles.appVersion}
+        />
       </Screen>
     </SafeAreaView>
   )
@@ -223,7 +277,7 @@ const styles = StyleSheet.create({
     color: colors.palette.neutral100,
     fontSize: 21,
     fontWeight: "bold",
-    textAlign: "center"
+    textAlign: "center",
   },
   profileDetails: {
     alignItems: "center",
@@ -293,5 +347,9 @@ const styles = StyleSheet.create({
   },
   actionTextSecondary: {
     color: colors.palette.neutral600,
+  },
+  appVersion: {
+    textAlign: "center",
+    paddingTop: 20,
   },
 })

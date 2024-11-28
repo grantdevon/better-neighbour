@@ -1,5 +1,5 @@
 import { Alert, StyleSheet, View } from "react-native"
-import React, { FC, useCallback, useEffect, useState } from "react"
+import React, { FC, useCallback, useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { MapStackParamList } from "app/navigators"
@@ -134,14 +134,27 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
           latitudeDelta: 0.015,
           longitudeDelta: 0.0121,
         }}
-        onRegionChangeComplete={(region) => {
-          // if (mapState === "Pin") {
-          // setCoords({
-          //   latitude: region.latitude,
-          //   longitude: region.longitude,
-          // })
-          // }
-        }}
+        zoomEnabled
+        maxZoomLevel={17} 
+        // onRegionChangeComplete={(region) => {
+        //   if (mapState === "Pin" && !isChangingRegion.current) {
+        //     isChangingRegion.current = true;
+        //     setCoords({
+        //       latitude: region.latitude,
+        //       longitude: region.longitude,
+        //     });
+        //     isChangingRegion.current = false;
+        //   }
+        // }}
+        // onRegionChange={(region) => {
+        //   console.log('====================================');
+        //   console.log(region);
+        //   console.log('====================================');
+        //   setCoords({
+        //     latitude: region.latitude,
+        //     longitude: region.longitude,
+        //   })
+        // }}
       >
         {mapState === "Pin" ? (
           <Marker
@@ -154,11 +167,11 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
           <Heatmap
             points={heatMapData}
             opacity={0.8}
-            radius={50}
+            radius={300}
             gradient={{
-              colors: ["#EEC20B", "#F29305", "#E50000"],
-              startPoints: [0.5, 0.75, 1],
-              colorMapSize: 500,
+              colors: ["#F29305", "#E50000"],
+              startPoints: [0.3, 1],
+              colorMapSize: 100,
             }}
           />
         ) : null}
