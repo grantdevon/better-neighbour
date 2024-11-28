@@ -8,7 +8,7 @@ export const firebaseModel = {
   signIn: (email: string, password: string) => signIn(email, password),
   signUp: (user: User) => signUp(user),
   fetchDoc: (collection: string, docId: string) => fetchDocument(collection, docId),
-  fetchDocByDate: (collection: string, date: string) => fetchDocumentsByDate(collection, date),
+  fetchDocumentsByDateAndLocations: (collection: string, date: string, locations: any) => fetchDocumentsByDateAndLocations(collection, date, locations),
   sendDoc: (collection: string, docId: string, data: any) => sendDocument(collection, docId, data),
   createDoc: (collection: string, data: any) => createDocument(collection, data),
   updateDoc: (collection: string, docId: string, data: any) =>
@@ -72,25 +72,34 @@ const fetchDocument = async (collection: string, docId: string): Promise<any> =>
   }
 }
 
-const fetchDocumentsByDate = async (collection: string, dateValue: string): Promise<any[]> => {
+const fetchDocumentsByDateAndLocations = async (
+  collection: string,
+  dateValue: string,
+  locations: string[]
+): Promise<any[]> => {
   try {
+    if (!locations || locations.length === 0) {
+      throw new Error("Locations array is empty. Cannot perform query with 'in' filter.")
+    }
+
     const querySnapshot = await firestore()
       .collection(collection)
       .where("date", "==", dateValue)
+      .where("location", "in", locations) // Match any of the saved locations
       .get()
 
     if (!querySnapshot.empty) {
-      const documents = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      return documents
+      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
     } else {
       console.log("No matching documents found.")
       return []
     }
   } catch (err) {
-    console.error("FetchDocumentsByDate Error: ", err)
-    throw new Error(`FetchDocumentsByDate Error: ${err.message}`)
+    console.error("FetchDocumentsByDateAndLocations Error: ", err)
+    throw new Error(`FetchDocumentsByDateAndLocations Error: ${err.message}`)
   }
 }
+
 
 // Function to send a document to Firestore
 const sendDocument = async (collection: string, docId: string, data: any): Promise<void> => {

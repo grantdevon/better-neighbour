@@ -86,7 +86,7 @@ export const Settings: FC<settingsProps> = observer(({navigation}) => {
               style={styles.memberIcon}
             />
             <Text
-              text={`Member since ${user.dateJoined}`}
+              text={`better neighbour since ${user.dateJoined}`}
               preset="subheading"
               size="md"
               weight="medium"

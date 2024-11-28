@@ -14,6 +14,7 @@ import { ReportCard } from "app/components/ReportCard"
 import * as Location from "expo-location"
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet"
 import MapView, { Heatmap, PROVIDER_GOOGLE } from "react-native-maps"
+import { Chip, FAB } from "@rneui/base"
 
 type homeProps = NativeStackScreenProps<AppStackParamList, "Home">
 
@@ -27,6 +28,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
   const {
     reportStore: { getReports, reports },
     mapStore: { setMapState },
+    userStore: { locations, addLocation, removeLocation },
   } = useStores()
 
   const actionSheetRef = useRef<ActionSheetRef>(null)
@@ -47,7 +49,9 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
   const updateHomePageData = async () => {
     try {
       let coords = { lat: location?.coords.latitude, lng: location?.coords.longitude }
-      await getReports("reports", getFormattedDate(), coords)
+      if (locations.length > 0) {
+        await getReports("reports", getFormattedDate(), coords, locations)
+      }
       setLoading(false)
     } catch (error) {
       setLoading(false)
@@ -128,6 +132,11 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
     // show action sheet of heat map
   }
 
+  const handleRemoveLocation = async(locationToRemove) => {
+    onRefresh()
+    removeLocation(locationToRemove)
+  }
+
   useEffect(() => {
     async function getCurrentLocation() {
       let { status } = await Location.requestForegroundPermissionsAsync()
@@ -163,6 +172,30 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
     )
   }
 
+  if (locations.length === 0) {
+    return (
+      <View style={styles.EmptyStateCard}>
+        <Text style={styles.emptyStateText}>No locations set, please set a location!</Text>
+        <LottieView
+          source={require("../../../assets/animations/aura.json")}
+          style={styles.emptyStateLottieAnimation}
+          autoPlay
+          loop
+        />
+        <Button
+          preset="filled"
+          text="Set a location"
+          onPress={() =>
+            navigation.navigate("Locations", {
+              coords: { lat: location?.coords.latitude, lng: location?.coords.longitude },
+            })
+          }
+          style={styles.emptyStateButton}
+        />
+      </View>
+    )
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -172,6 +205,45 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholderTextColor={colors.palette.neutral500}
+        />
+      </View>
+      <View style={styles.locationContainer}>
+        <FlatList
+          data={["+", ...locations]} // Add the "+" chip at the beginning
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.chipWrapper}>
+              {item === "+" ? (
+                <Chip
+                  title="+"
+                  onPress={() =>
+                    navigation.navigate("Locations", {
+                      coords: { lat: location?.coords.latitude, lng: location?.coords.longitude },
+                    })
+                  }
+                  containerStyle={styles.plusChipContainer}
+                  buttonStyle={styles.plusChip}
+                  titleStyle={styles.plusChipText}
+                />
+              ) : (
+                <Chip
+                  title={item}
+                  icon={{
+                    name: "close",
+                    type: "material",
+                    color: "white",
+                    size: 18,
+                    onPress: () => handleRemoveLocation(item),
+                  }}
+                  containerStyle={styles.chipContainer}
+                  buttonStyle={styles.chip}
+                  titleStyle={styles.chipText}
+                />
+              )}
+            </View>
+          )}
         />
       </View>
       <FlatList
@@ -319,5 +391,50 @@ const styles = StyleSheet.create({
   },
   emptyStateButton: {
     borderRadius: 7,
+  },
+  locationContainer: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    flexDirection: "row",
+  },
+  noLocationsText: {
+    color: colors.palette.neutral500,
+    fontSize: 16,
+  },
+  chip: {
+    marginRight: 5,
+    backgroundColor: colors.palette.primary500,
+    padding: 10,
+    borderRadius: 20,
+  },
+  chipText: {
+    color: "white",
+    fontSize: 14,
+  },
+  chipWrapper: {
+    paddingHorizontal: 5,
+    paddingTop: 10,
+  },
+  chipContainer: {
+    marginHorizontal: 2,
+  },
+  chip: {
+    backgroundColor: colors.palette.primary500,
+    flexDirection: "row",
+  },
+  chipText: {
+    color: "white",
+    fontSize: 14,
+  },
+  plusChipContainer: {
+    marginHorizontal: 2,
+  },
+  plusChip: {
+    backgroundColor: colors.palette.neutral100,
+    borderWidth: 1,
+    borderColor: colors.palette.neutral500,
+  },
+  plusChipText: {
+    color: colors.palette.neutral800,
   },
 })

@@ -14,7 +14,7 @@ import Toast from "react-native-toast-message"
 
 type mapProps = NativeStackScreenProps<MapStackParamList, "Map">
 
-type ReportType = "Suspicious Activity" | "Crime"
+type ReportType = "Suspicious Activity" | "Crime" | "Be Alert"
 
 type MapState = "Pin" | "HeatMap"
 
@@ -33,6 +33,7 @@ interface ReportProps {
 export const Map: FC<mapProps> = observer(({ navigation }) => {
   const {
     mapStore: { mapState, setMapState },
+    userStore: { locations },
     reportStore: { getReports, reports },
   } = useStores()
   const [coords, setCoords] = useState<{ latitude: number; longitude: number }>({
@@ -78,7 +79,9 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
   const updateMapData = async () => {
     try {
       let coords = { lat: location?.coords.latitude, lng: location?.coords.longitude }
-      await getReports("reports", getFormattedDate(), coords)
+      if (locations.length > 0) {
+        await getReports("reports", getFormattedDate(), coords, locations)
+      }
       if (reports) {
         let tempHeatMapArr: [] = []
         reports.forEach((report) => {
@@ -135,7 +138,7 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
           longitudeDelta: 0.0121,
         }}
         zoomEnabled
-        maxZoomLevel={17} 
+        maxZoomLevel={17}
         // onRegionChangeComplete={(region) => {
         //   if (mapState === "Pin" && !isChangingRegion.current) {
         //     isChangingRegion.current = true;

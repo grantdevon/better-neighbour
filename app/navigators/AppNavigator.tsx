@@ -32,7 +32,7 @@ import Toast from "react-native-toast-message"
  *   https://reactnavigation.org/docs/typescript/#organizing-types
  */
 export type AppStackParamList = {
-  Home: undefined
+  HomeTab: undefined
   MapTab: coords | undefined
   SettingsTab: undefined
 
@@ -45,6 +45,10 @@ type coords = {
   longitude: number
 }
 
+export type HomeStackParamList = {
+  Home: undefined
+  Locations: undefined
+}
 export type MapStackParamList = {
   Map: undefined
   Report: { lat: number; lng: number }
@@ -74,11 +78,23 @@ export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStack
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<AppStackParamList>()
 const Tab = createBottomTabNavigator<AppStackParamList>()
+const HomeStackNavigator = createNativeStackNavigator<HomeStackParamList>()
 const MapStackNavigator = createNativeStackNavigator<MapStackParamList>()
 const SettingsStackNavigator = createNativeStackNavigator<SettingsStackParamList>()
 
 const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>()
 
+const HomeStack = observer(function HomeStack() {
+  return (
+    <HomeStackNavigator.Navigator
+      screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
+    >
+      {/* <MapStackNavigator.Screen name="Welcome" component={Screens.WelcomeScreen} /> */}
+      <HomeStackNavigator.Screen name="Home" component={Screens.Home} />
+      <HomeStackNavigator.Screen name="Locations" component={Screens.Locations} />
+    </HomeStackNavigator.Navigator>
+  )
+})
 const MapStack = observer(function MapStack() {
   return (
     <MapStackNavigator.Navigator
@@ -109,8 +125,8 @@ const AppStack = observer(function AppStack() {
       screenOptions={{ tabBarActiveTintColor: colors.palette.primary300, tabBarShowLabel: false }}
     >
       <Tab.Screen
-        name="Home"
-        component={Screens.Home}
+        name="HomeTab"
+        component={HomeStack}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => <Icon name="home" size={20} color={color} />,

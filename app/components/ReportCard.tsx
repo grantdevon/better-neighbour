@@ -5,9 +5,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { formatToLocalTime } from "app/utils/formatDate"
 
 export const ReportCard = ({ item, onPress }) => {
-  console.log('====================================');
-  console.log(item);
-  console.log('====================================');
   // Get icon based on report type
   const getReportIcon = (type) => {
     switch (type.toLowerCase()) {
@@ -15,6 +12,8 @@ export const ReportCard = ({ item, onPress }) => {
         return "alert-octagon"
       case "suspicious activity":
         return "alert"
+      case "be alert":
+        return "message-alert"
       default:
         return "information"
     }
@@ -26,7 +25,9 @@ export const ReportCard = ({ item, onPress }) => {
       case "crime":
         return "rgba(239, 68, 68, 0.1)" // red with opacity
       case "suspicious activity":
-        return "rgba(234, 179, 8, 0.1)" // yellow with opacity
+        return "rgba(234, 179, 8, 0.1)"// yellow with opacity
+      case "be alert":
+        return "rgba(234, 179, 8, 0.1)" 
       default:
         return "rgba(59, 130, 246, 0.1)" // blue with opacity
     }

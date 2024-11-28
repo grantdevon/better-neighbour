@@ -19,7 +19,7 @@ import {
 import { Dropdown } from "react-native-element-dropdown"
 import { TextInput } from "react-native-gesture-handler"
 
-type ReportType = "Suspicious Activity" | "Crime"
+type ReportType = "Suspicious Activity" | "Crime" | "Be Alert"
 
 interface IReportType {
   label: ReportType
@@ -49,7 +49,7 @@ export const Report: FC = observer(({ navigation, route }) => {
 
   const {
     mapStore: { setMapState },
-    userStore: { user },
+    userStore: { user, locations },
     reportStore: { getReports },
   } = useStores()
 
@@ -72,6 +72,7 @@ export const Report: FC = observer(({ navigation, route }) => {
   const dropDownData: IReportType[] = [
     { label: "Suspicious Activity", value: "Suspicious Activity" },
     { label: "Crime", value: "Crime" },
+    { label: "Be Alert", value: "Be Alert" },
   ]
 
   useHeader(
@@ -105,7 +106,7 @@ export const Report: FC = observer(({ navigation, route }) => {
       try {
         setLoading(true)
         await firebaseModel.createDoc("reports", data)
-        await getReports("reports", getFormattedDate(), coords)
+        await getReports("reports", getFormattedDate(), coords, locations)
         setMapState("HeatMap")
         navigation.navigate("Map")
         setLoading(false)
@@ -153,7 +154,7 @@ export const Report: FC = observer(({ navigation, route }) => {
           />
           <Text style={styles.inputLabel}>Location</Text>
           <Dropdown
-            style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+            style={[styles.dropdown, isLocationInFocus && { borderColor: "blue" }]}
             placeholderStyle={styles.placeholderStyle}
             selectedTextStyle={styles.selectedTextStyle}
             inputSearchStyle={styles.inputSearchStyle}

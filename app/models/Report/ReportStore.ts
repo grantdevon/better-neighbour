@@ -10,10 +10,10 @@ export const ReportStoreModel = types
     state: "",
   })
   .actions((self) => {
-    const getReports = flow(function* (collection: string, date: string, userCoords) {
+    const getReports = flow(function* (collection: string, date: string, userCoords, locations) {
       self.state = "pending"
       try {
-        const result = yield firebaseModel.fetchDocByDate(collection, date) 
+        const result = yield firebaseModel.fetchDocumentsByDateAndLocations(collection, date, locations) 
         const sortedReports = sortReports(result, userCoords);
         console.log('====================================');
         console.log(sortedReports);
