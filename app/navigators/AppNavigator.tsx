@@ -122,7 +122,13 @@ const SettingsStack = observer(function SettingsStack() {
 const AppStack = observer(function AppStack() {
   return (
     <Tab.Navigator
-      screenOptions={{ tabBarActiveTintColor: colors.palette.primary300, tabBarShowLabel: false }}
+      screenOptions={{
+        tabBarActiveTintColor: colors.palette.primary300,
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          backgroundColor: colors.palette.neutral200,
+        },
+      }}
     >
       <Tab.Screen
         name="HomeTab"

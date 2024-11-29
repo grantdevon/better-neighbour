@@ -21,8 +21,10 @@ export default SettingsLoader
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 10,
-    marginTop: 20
+    paddingHorizontal: 10,
+    marginTop: 20,
+    flex: 1,
+    backgroundColor: colors.palette.neutral200,
     // flex: 1,
   },
 })

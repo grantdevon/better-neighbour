@@ -45,7 +45,14 @@ export const Locations = observer(({ navigation, route }) => {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.palette.neutral100,
+        }}
+      >
         <ActivityIndicator size={"large"} color={colors.palette.neutral800} />
         <Text>Setting Locations...</Text>
       </SafeAreaView>
@@ -97,6 +104,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     paddingBottom: 20,
+    backgroundColor: colors.palette.neutral100,
   },
   heading: {
     marginBottom: 15,

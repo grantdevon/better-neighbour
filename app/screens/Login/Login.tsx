@@ -20,7 +20,7 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
       Alert.alert("Validation Error", "Please fill in both email and password fields.")
       return
     }
-  
+
     setLoading(true)
     try {
       await firebaseModel.signIn(email, password)
@@ -31,19 +31,19 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
     }
   }
 
-  const handleForgotPassword = async() => {
+  const handleForgotPassword = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  
+
     if (!email) {
       Alert.alert("", "Please enter an email address.")
       return
     }
-  
+
     if (!emailRegex.test(email)) {
       Alert.alert("", "Please enter a valid email address.")
       return
     }
-  
+
     try {
       await firebaseModel.forgotPassword(email)
       Alert.alert("", "Password reset link sent to your email.")
@@ -55,7 +55,16 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
   }
   if (loading)
     return (
-      <SafeAreaView style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          {
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: colors.palette.neutral200,
+          },
+        ]}
+      >
         <ActivityIndicator size={50} />
         <Text text="Please wait" preset="subheading" />
       </SafeAreaView>
@@ -64,7 +73,7 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
   return (
     <Screen safeAreaEdges={["top", "bottom"]} style={styles.container}>
       <View style={styles.mainContent}>
-        <Text text="Welcome" preset="heading" size="xl" style={{paddingLeft: 20}}/>
+        <Text text="Welcome" preset="heading" size="xl" style={{ paddingLeft: 20 }} />
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.textInput}
@@ -83,8 +92,8 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
           />
         </View>
         <Button text="Login" preset="filled" style={styles.button} onPress={signInUser} />
-        <TouchableOpacity style={styles.forgotPassword}  onPress={handleForgotPassword}>
-          <Text preset="subheading" text="forgot password?" size="sm"/>
+        <TouchableOpacity style={styles.forgotPassword} onPress={handleForgotPassword}>
+          <Text preset="subheading" text="forgot password?" size="sm" />
         </TouchableOpacity>
       </View>
 

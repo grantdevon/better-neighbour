@@ -176,7 +176,7 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
           <Heatmap
             points={heatMapData}
             opacity={0.8}
-            radius={300}
+            radius={50}
             gradient={{
               colors: ["#F29305", "#E50000"],
               startPoints: [0.3, 1],

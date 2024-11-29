@@ -202,7 +202,14 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
 
   if (loading)
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.palette.neutral200,
+        }}
+      >
         <ActivityIndicator size={50} />
         <Text style={styles.formDescription} text={"Please wait..."} preset="heading" />
       </SafeAreaView>
@@ -266,7 +273,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     justifyContent: "space-around",
     flexDirection: "row",
-    paddingBottom: 30,
+    paddingBottom: 50,
     paddingHorizontal: 5,
   },
   button: {

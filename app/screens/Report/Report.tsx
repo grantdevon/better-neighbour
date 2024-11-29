@@ -106,9 +106,9 @@ export const Report: FC = observer(({ navigation, route }) => {
       try {
         setLoading(true)
         await firebaseModel.createDoc("reports", data)
-        console.log('====================================');
-        console.log("locations ", data.location);
-        console.log('====================================');
+        console.log("====================================")
+        console.log("locations ", data.location)
+        console.log("====================================")
         if (locations.length > 0) {
           await getReports("reports", getFormattedDate(), coords, locations)
         } else {
@@ -129,7 +129,14 @@ export const Report: FC = observer(({ navigation, route }) => {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.palette.neutral200,
+        }}
+      >
         <ActivityIndicator size={"large"} color={colors.palette.neutral800} />
         <Text>Making a report...</Text>
       </SafeAreaView>
@@ -208,7 +215,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "space-between",
-    marginHorizontal: 10,
+    paddingHorizontal: 10,
+    backgroundColor: colors.palette.neutral200,
   },
   label: {
     position: "absolute",

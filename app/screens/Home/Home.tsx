@@ -172,24 +172,26 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
 
   if (locations.length === 0) {
     return (
-      <View style={styles.EmptyStateCard}>
-        <Text style={styles.emptyStateText}>No locations set, please set a location!</Text>
-        <LottieView
-          source={require("../../../assets/animations/aura.json")}
-          style={styles.emptyStateLottieAnimation}
-          autoPlay
-          loop
-        />
-        <Button
-          preset="filled"
-          text="Set a location"
-          onPress={() =>
-            navigation.navigate("Locations", {
-              coords: { lat: location?.coords.latitude, lng: location?.coords.longitude },
-            })
-          }
-          style={styles.emptyStateButton}
-        />
+      <View style={styles.container}>
+        <View style={styles.EmptyStateCard}>
+          <Text style={styles.emptyStateText}>No locations set, please set a location!</Text>
+          <LottieView
+            source={require("../../../assets/animations/aura.json")}
+            style={styles.emptyStateLottieAnimation}
+            autoPlay
+            loop
+          />
+          <Button
+            preset="filled"
+            text="Set a location"
+            onPress={() =>
+              navigation.navigate("Locations", {
+                coords: { lat: location?.coords.latitude, lng: location?.coords.longitude },
+              })
+            }
+            style={styles.emptyStateButton}
+          />
+        </View>
       </View>
     )
   }
@@ -277,7 +279,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
           <Heatmap
             points={heatMap}
             opacity={0.8}
-            radius={300}
+            radius={50}
             gradient={{
               colors: ["#EEC20B", "#F29305", "#E50000"],
               startPoints: [0.5, 0.75, 1],
@@ -293,7 +295,6 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // paddingHorizontal: 10,
     backgroundColor: colors.palette.neutral100,
   },
   searchContainer: {

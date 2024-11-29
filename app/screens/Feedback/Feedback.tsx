@@ -55,7 +55,14 @@ export const Feedback: FC = observer(({ navigation }) => {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.palette.neutral200,
+        }}
+      >
         <ActivityIndicator size={"large"} color={colors.palette.neutral800} />
         <Text>Submitting your feedback...</Text>
       </SafeAreaView>
