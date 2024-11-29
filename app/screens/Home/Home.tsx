@@ -14,21 +14,22 @@ import { ReportCard } from "app/components/ReportCard"
 import * as Location from "expo-location"
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet"
 import MapView, { Heatmap, PROVIDER_GOOGLE } from "react-native-maps"
-import { Chip, FAB } from "@rneui/base"
+import { Chip } from "@rneui/base"
 
-type homeProps = NativeStackScreenProps<AppStackParamList, "Home">
+type homeProps = NativeStackScreenProps<AppStackParamList, "HomeTab">
 
 export const Home: FC<homeProps> = observer(({ navigation }) => {
   useHeader({
     leftText: "Today's activity",
     rightIcon: "ladybug",
+    backgroundColor: colors.palette.neutral100,
     onRightPress: () => showFilterOptions(),
   })
 
   const {
     reportStore: { getReports, reports },
     mapStore: { setMapState },
-    userStore: { locations, addLocation, removeLocation },
+    userStore: { locations, removeLocation },
   } = useStores()
 
   const actionSheetRef = useRef<ActionSheetRef>(null)
@@ -59,9 +60,6 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
   }
 
   const showFilterOptions = () => {
-    console.log("====================================")
-    console.log("show")
-    console.log("====================================")
     actionSheetRef.current?.show()
   }
 
@@ -71,7 +69,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
     setRefreshing(false)
   }
 
-  const filteredReports = reports.filter((report) => {
+  const filteredReports = reports?.filter((report) => {
     const searchLower = searchQuery.toLowerCase()
     return (
       report.name.toLowerCase().includes(searchLower) ||
@@ -88,7 +86,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
   }
 
   const RenderEmptyState = () => {
-    if (searchQuery && filteredReports.length === 0) {
+    if (searchQuery && filteredReports?.length === 0) {
       return (
         <View style={styles.EmptyStateCard}>
           <Text style={styles.emptyStateText}>No matching reports found</Text>
@@ -132,7 +130,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
     // show action sheet of heat map
   }
 
-  const handleRemoveLocation = async(locationToRemove) => {
+  const handleRemoveLocation = async (locationToRemove) => {
     onRefresh()
     removeLocation(locationToRemove)
   }
@@ -209,7 +207,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
       </View>
       <View style={styles.locationContainer}>
         <FlatList
-          data={["+", ...locations]} // Add the "+" chip at the beginning
+          data={["+", ...locations]}
           horizontal
           showsHorizontalScrollIndicator={false}
           keyExtractor={(item, index) => index.toString()}
@@ -295,14 +293,15 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 10,
+    // paddingHorizontal: 10,
+    backgroundColor: colors.palette.neutral100,
   },
   searchContainer: {
     marginVertical: 10,
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
   },
   searchInput: {
-    backgroundColor: colors.palette.neutral100,
+    backgroundColor: colors.palette.neutral200,
     padding: 12,
     borderRadius: 10,
     fontSize: 16,
@@ -376,6 +375,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     paddingVertical: 20,
     marginVertical: 20,
+    marginHorizontal: 15,
   },
   emptyStateLottieAnimation: {
     width: 320,
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: colors.palette.neutral700,
     paddingLeft: 10,
-    fontSize: 25,
+    fontSize: 20,
   },
   emptyStateButton: {
     borderRadius: 7,

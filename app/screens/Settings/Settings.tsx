@@ -31,6 +31,10 @@ export const Settings: FC<settingsProps> = observer(({navigation}) => {
     userStore: { getUser, signOut, user },
   } = useStores()
 
+  const handleSignOut = () => {
+    signOut()
+  }
+
   const [actionArray, setActionArray] = useState<ActionProps[]>([
     {
       title: "Give feedback ❤️",
@@ -176,7 +180,7 @@ export const Settings: FC<settingsProps> = observer(({navigation}) => {
       "Are you sure you want to sign out?",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Sign out", onPress: () => signOut(), style: "destructive" },
+        { text: "Sign out", onPress: () => handleSignOut(), style: "destructive" },
       ],
       { cancelable: true },
     )

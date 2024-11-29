@@ -60,8 +60,6 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
     trustPoints: 0,
     verified: false,
   })
-  const [showPassword, setShowPassword] = useState<boolean>(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
   const [confirmPassword, setConfirmPassword] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -174,10 +172,18 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
       <View>
         {signUpQuestion && (
           <View style={styles.formContainer}>
-            {signUpQuestion.description && (
-              <Text text={signUpQuestion.description} preset="heading" size="xl" />
-            )}
-            <Text text={signUpQuestion.question} preset="heading" size="lg" />
+            <View style={{ paddingVertical: 10 }}>
+              {signUpQuestion.description && (
+                <Text
+                  text={signUpQuestion.description}
+                  preset="heading"
+                  size="xl"
+                  style={{ color: colors.palette.primary600 }}
+                />
+              )}
+            </View>
+
+            <Text text={signUpQuestion.question} preset="heading" size="md" />
             <TextInput
               style={styles.formInput}
               value={signUpQuestion.value}
@@ -187,30 +193,7 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
               placeholderTextColor={colors.palette.neutral300}
               inputMode={signUpQuestion.placeholder === "Email" ? "email" : "text"}
               autoCapitalize={"none"}
-              secureTextEntry
             />
-            {signUpQuestion.isPassword && (
-              <TouchableOpacity
-                onPress={() => {
-                  if (signUpQuestion.placeholder === "Password") {
-                    setShowPassword(!showPassword)
-                  } else {
-                    setShowConfirmPassword(!showConfirmPassword)
-                  }
-                }}
-              >
-                <Text style={styles.passwordToggle}>
-                  {signUpQuestion.placeholder === "Password"
-                    ? showPassword
-                      ? "Hide"
-                      : "Show"
-                    : showConfirmPassword
-                    ? "Hide"
-                    : "Show"}{" "}
-                  Password
-                </Text>
-              </TouchableOpacity>
-            )}
           </View>
         )}
       </View>
@@ -226,7 +209,7 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
     )
 
   return (
-    <Screen safeAreaEdges={["top", "bottom"]} style={styles.container}>
+    <View style={styles.container}>
       <View>
         <View style={styles.indicatorContainer}>
           {signUpObject.map((_, index) => (
@@ -258,7 +241,7 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
           onPress={() => updateQuestion("next")}
         />
       </View>
-    </Screen>
+    </View>
   )
 })
 
@@ -283,7 +266,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     justifyContent: "space-around",
     flexDirection: "row",
-    paddingTop: 30,
+    paddingBottom: 30,
     paddingHorizontal: 5,
   },
   button: {
@@ -292,7 +275,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   formContainer: {
-    marginTop: 50,
+    marginTop: 15,
     marginHorizontal: 20,
   },
   formTitle: {

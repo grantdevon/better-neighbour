@@ -106,7 +106,14 @@ export const Report: FC = observer(({ navigation, route }) => {
       try {
         setLoading(true)
         await firebaseModel.createDoc("reports", data)
-        await getReports("reports", getFormattedDate(), coords, locations)
+        console.log('====================================');
+        console.log("locations ", data.location);
+        console.log('====================================');
+        if (locations.length > 0) {
+          await getReports("reports", getFormattedDate(), coords, locations)
+        } else {
+          await getReports("reports", getFormattedDate(), coords, [data.location])
+        }
         setMapState("HeatMap")
         navigation.navigate("Map")
         setLoading(false)
@@ -238,7 +245,7 @@ const styles = StyleSheet.create({
     borderColor: "grey",
     paddingHorizontal: 10,
     paddingVertical: 20,
-    paddingTop: 15
+    paddingTop: 15,
   },
   inputSearchStyle: {
     height: 40,

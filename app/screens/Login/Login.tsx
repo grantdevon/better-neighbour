@@ -31,6 +31,28 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
     }
   }
 
+  const handleForgotPassword = async() => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  
+    if (!email) {
+      Alert.alert("", "Please enter an email address.")
+      return
+    }
+  
+    if (!emailRegex.test(email)) {
+      Alert.alert("", "Please enter a valid email address.")
+      return
+    }
+  
+    try {
+      await firebaseModel.forgotPassword(email)
+      Alert.alert("", "Password reset link sent to your email.")
+    } catch (error) {
+      // Handle specific Firebase error messages
+      const errorMessage = error instanceof Error ? error.message : "An error occurred"
+      Alert.alert("Error", errorMessage)
+    }
+  }
   if (loading)
     return (
       <SafeAreaView style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
@@ -61,8 +83,8 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
           />
         </View>
         <Button text="Login" preset="filled" style={styles.button} onPress={signInUser} />
-        <TouchableOpacity style={styles.forgotPassword}>
-          <Text preset="subheading" text="forgot password?" size="sm" />
+        <TouchableOpacity style={styles.forgotPassword}  onPress={handleForgotPassword}>
+          <Text preset="subheading" text="forgot password?" size="sm"/>
         </TouchableOpacity>
       </View>
 
@@ -75,7 +97,7 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
           text="Sign up"
           preset="subheading"
           size="sm"
-          style={[styles.signUpText, { color: colors.palette.neutral900, paddingLeft: 7 }]}
+          style={[styles.signUpText, { color: colors.palette.primary600, paddingLeft: 7 }]}
         />
       </TouchableOpacity>
     </Screen>

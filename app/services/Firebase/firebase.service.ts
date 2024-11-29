@@ -8,12 +8,14 @@ export const firebaseModel = {
   signIn: (email: string, password: string) => signIn(email, password),
   signUp: (user: User) => signUp(user),
   fetchDoc: (collection: string, docId: string) => fetchDocument(collection, docId),
-  fetchDocumentsByDateAndLocations: (collection: string, date: string, locations: any) => fetchDocumentsByDateAndLocations(collection, date, locations),
+  fetchDocumentsByDateAndLocations: (collection: string, date: string, locations: any) =>
+    fetchDocumentsByDateAndLocations(collection, date, locations),
   sendDoc: (collection: string, docId: string, data: any) => sendDocument(collection, docId, data),
   createDoc: (collection: string, data: any) => createDocument(collection, data),
   updateDoc: (collection: string, docId: string, data: any) =>
     updateDocument(collection, docId, data),
   deleteUser: () => deleteUserAccount(),
+  forgotPassword: (email: string) => forgotPassword(email),
 }
 
 // Function to sign in a user
@@ -72,10 +74,14 @@ const fetchDocument = async (collection: string, docId: string): Promise<any> =>
   }
 }
 
+const forgotPassword = async (email: string) => {
+  await auth().sendPasswordResetEmail(email)
+}
+
 const fetchDocumentsByDateAndLocations = async (
   collection: string,
   dateValue: string,
-  locations: string[]
+  locations: string[],
 ): Promise<any[]> => {
   try {
     if (!locations || locations.length === 0) {
@@ -99,7 +105,6 @@ const fetchDocumentsByDateAndLocations = async (
     throw new Error(`FetchDocumentsByDateAndLocations Error: ${err.message}`)
   }
 }
-
 
 // Function to send a document to Firestore
 const sendDocument = async (collection: string, docId: string, data: any): Promise<void> => {

@@ -3,14 +3,15 @@ import React, { FC, useCallback, useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { MapStackParamList } from "app/navigators"
-import MapView, { Heatmap, Marker, PROVIDER_GOOGLE } from "react-native-maps"
-import { FAB } from "@rneui/themed"
+import MapView, { Heatmap, Marker, PROVIDER_GOOGLE, Region } from "react-native-maps"
+import { FAB, Icon } from "@rneui/themed"
 import { colors } from "app/theme"
 import { useStores } from "app/models"
 import { getFormattedDate } from "app/utils/formatDate"
 import { useFocusEffect } from "@react-navigation/native"
 import * as Location from "expo-location"
 import Toast from "react-native-toast-message"
+import { Text } from "app/components"
 
 type mapProps = NativeStackScreenProps<MapStackParamList, "Map">
 
@@ -36,9 +37,18 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
     userStore: { locations },
     reportStore: { getReports, reports },
   } = useStores()
+
   const [coords, setCoords] = useState<{ latitude: number; longitude: number }>({
     latitude: 0,
     longitude: 0,
+  })
+  const mapRef = useRef<MapView>(null)
+
+  const [currentRegion, setCurrentRegion] = useState<Region>({
+    latitude: 0,
+    longitude: 0,
+    latitudeDelta: 0.015,
+    longitudeDelta: 0.0121,
   })
   const [heatMapData, setHeatMapData] = useState<[]>([])
 
@@ -51,6 +61,10 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
         type: "info",
         text1: "hold to drag marker",
         visibilityTime: 3000,
+      })
+      setCoords({
+        latitude: currentRegion.latitude,
+        longitude: currentRegion.longitude,
       })
     }
     setMapState(state)
@@ -138,34 +152,26 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
           longitudeDelta: 0.0121,
         }}
         zoomEnabled
+        onRegionChangeComplete={(region) => setCurrentRegion(region)}
         maxZoomLevel={17}
-        // onRegionChangeComplete={(region) => {
-        //   if (mapState === "Pin" && !isChangingRegion.current) {
-        //     isChangingRegion.current = true;
-        //     setCoords({
-        //       latitude: region.latitude,
-        //       longitude: region.longitude,
-        //     });
-        //     isChangingRegion.current = false;
-        //   }
-        // }}
-        // onRegionChange={(region) => {
-        //   console.log('====================================');
-        //   console.log(region);
-        //   console.log('====================================');
-        //   setCoords({
-        //     latitude: region.latitude,
-        //     longitude: region.longitude,
-        //   })
-        // }}
       >
         {mapState === "Pin" ? (
           <Marker
-            draggable={true}
             coordinate={coords}
+            draggable={true}
             onDragEnd={(e) => confirmEvent(e.nativeEvent.coordinate)}
             onPress={(e) => confirmEvent(e.nativeEvent.coordinate)}
-          />
+          >
+            <View>
+              <View style={{ backgroundColor: "white" }}>
+                <Text
+                  text="Tap or drag to set report location"
+                  style={{ color: colors.palette.angry500 }}
+                />
+              </View>
+              <Icon name="map-pin" type="feather" color={colors.palette.angry500} size={30} />
+            </View>
+          </Marker>
         ) : heatMapData.length > 0 ? (
           <Heatmap
             points={heatMapData}

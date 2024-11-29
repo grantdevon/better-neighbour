@@ -10,6 +10,7 @@ import { debounce } from "lodash"
 import { useStores } from "app/models"
 import { getFormattedDate } from "app/utils/formatDate"
 import { colors } from "app/theme"
+import { StatusBar } from "expo-status-bar"
 
 const RenderLeftIcon = React.memo(() => (
   <Icon style={styles.icon} color="black" name="map" size={20} />
@@ -25,7 +26,7 @@ export const Locations = observer(({ navigation, route }) => {
   })
   const {
     reportStore: { getReports },
-    userStore: { locations, addLocation, removeLocation },
+    userStore: { locations, addLocation },
   } = useStores()
 
   const [locationsValue, setLocationsValue] = useState(locations)
@@ -52,8 +53,9 @@ export const Locations = observer(({ navigation, route }) => {
   }
 
   return (
-    <Screen>
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <StatusBar style={"auto"} />
+      <View>
         <Text
           text="Please select your location's below"
           preset="heading"
@@ -80,16 +82,21 @@ export const Locations = observer(({ navigation, route }) => {
           }}
           renderLeftIcon={() => <RenderLeftIcon />}
           selectedStyle={styles.selectedStyle}
+          flatListProps={{ initialNumToRender: 10 }}
         />
-        <Button text="Save" preset="filled" style={styles.button} onPress={saveLocations} />
       </View>
-    </Screen>
+
+      <Button text="Save" preset="filled" style={styles.button} onPress={saveLocations} />
+    </View>
   )
 })
 
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 15,
+    flex: 1,
+    justifyContent: "space-between",
+    paddingBottom: 20,
   },
   heading: {
     marginBottom: 15,
