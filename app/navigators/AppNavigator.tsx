@@ -16,6 +16,7 @@ import { colors } from "app/theme"
 import auth from "@react-native-firebase/auth"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import Icon from "react-native-vector-icons/Ionicons"
+import Toast from "react-native-toast-message"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -31,17 +32,30 @@ import Icon from "react-native-vector-icons/Ionicons"
  *   https://reactnavigation.org/docs/typescript/#organizing-types
  */
 export type AppStackParamList = {
-  Home: undefined
-  MapTab: undefined
-  Settings: undefined
+  HomeTab: undefined
+  MapTab: coords | undefined
+  SettingsTab: undefined
 
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
+type coords = {
+  latitude: number
+  longitude: number
+}
+
+export type HomeStackParamList = {
+  Home: undefined
+  Locations: undefined
+}
 export type MapStackParamList = {
   Map: undefined
-  Report: {lat:number, lng: number}
+  Report: { lat: number; lng: number }
+}
+export type SettingsStackParamList = {
+  Settings: undefined
+  Feedback: undefined
 }
 
 export type AuthStackParamList = {
@@ -64,10 +78,23 @@ export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStack
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<AppStackParamList>()
 const Tab = createBottomTabNavigator<AppStackParamList>()
+const HomeStackNavigator = createNativeStackNavigator<HomeStackParamList>()
 const MapStackNavigator = createNativeStackNavigator<MapStackParamList>()
+const SettingsStackNavigator = createNativeStackNavigator<SettingsStackParamList>()
 
 const AuthStackNavigator = createNativeStackNavigator<AuthStackParamList>()
 
+const HomeStack = observer(function HomeStack() {
+  return (
+    <HomeStackNavigator.Navigator
+      screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
+    >
+      {/* <MapStackNavigator.Screen name="Welcome" component={Screens.WelcomeScreen} /> */}
+      <HomeStackNavigator.Screen name="Home" component={Screens.Home} />
+      <HomeStackNavigator.Screen name="Locations" component={Screens.Locations} />
+    </HomeStackNavigator.Navigator>
+  )
+})
 const MapStack = observer(function MapStack() {
   return (
     <MapStackNavigator.Navigator
@@ -80,14 +107,32 @@ const MapStack = observer(function MapStack() {
   )
 })
 
+const SettingsStack = observer(function SettingsStack() {
+  return (
+    <SettingsStackNavigator.Navigator
+      screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
+    >
+      {/* <MapStackNavigator.Screen name="Welcome" component={Screens.WelcomeScreen} /> */}
+      <SettingsStackNavigator.Screen name="Settings" component={Screens.Settings} />
+      <SettingsStackNavigator.Screen name="Feedback" component={Screens.Feedback} />
+    </SettingsStackNavigator.Navigator>
+  )
+})
+
 const AppStack = observer(function AppStack() {
   return (
     <Tab.Navigator
-      screenOptions={{ tabBarActiveTintColor: colors.palette.primary, tabBarShowLabel: false }}
+      screenOptions={{
+        tabBarActiveTintColor: colors.palette.primary300,
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          backgroundColor: colors.palette.neutral200,
+        },
+      }}
     >
       <Tab.Screen
-        name="Home"
-        component={Screens.Home}
+        name="HomeTab"
+        component={HomeStack}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => <Icon name="home" size={20} color={color} />,
@@ -102,8 +147,8 @@ const AppStack = observer(function AppStack() {
         }}
       />
       <Tab.Screen
-        name="Settings"
-        component={Screens.Settings}
+        name="SettingsTab"
+        component={SettingsStack}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => <Icon name="settings" size={20} color={color} />,
@@ -154,6 +199,7 @@ export const AppNavigator = observer(function AppNavigator(props: NavigationProp
       {...props}
     >
       {!user ? <AuthStack /> : <AppStack />}
+      <Toast />
     </NavigationContainer>
   )
 })

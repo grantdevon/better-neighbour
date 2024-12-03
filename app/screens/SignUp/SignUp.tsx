@@ -3,9 +3,9 @@ import {
   Alert,
   SafeAreaView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
+  TextInput,
 } from "react-native"
 import React, { FC, useState } from "react"
 import { observer } from "mobx-react-lite"
@@ -13,9 +13,9 @@ import { AuthStackParamList } from "app/navigators"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { useHeader } from "app/utils/useHeader"
 import { colors } from "app/theme"
-import { TextInput } from "react-native-gesture-handler"
 import { Button } from "app/components"
 import { firebaseModel } from "app/services/Firebase/firebase.service"
+import { Screen, Text } from "app/components"
 
 type SignUpProps = NativeStackScreenProps<AuthStackParamList, "SignUp">
 
@@ -45,7 +45,6 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
     {
       title: "Create an account",
       leftIcon: "back",
-      leftIconColor: colors.palette.ctaHelper,
       onLeftPress: () => navigation.navigate("Login"),
     },
     [],
@@ -61,8 +60,6 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
     trustPoints: 0,
     verified: false,
   })
-  const [showPassword, setShowPassword] = useState<boolean>(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
   const [confirmPassword, setConfirmPassword] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -175,44 +172,28 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
       <View>
         {signUpQuestion && (
           <View style={styles.formContainer}>
-            {signUpQuestion.description && (
-              <Text style={styles.formDescription}>{signUpQuestion.description}</Text>
-            )}
-            <Text style={styles.formTitle}>{signUpQuestion.question}</Text>
+            <View style={{ paddingVertical: 10 }}>
+              {signUpQuestion.description && (
+                <Text
+                  text={signUpQuestion.description}
+                  preset="heading"
+                  size="xl"
+                  style={{ color: colors.palette.primary600 }}
+                />
+              )}
+            </View>
+
+            <Text text={signUpQuestion.question} preset="heading" size="md" />
             <TextInput
               style={styles.formInput}
               value={signUpQuestion.value}
               placeholder={signUpQuestion.placeholder}
+              keyboardType="default"
               onChangeText={signUpQuestion.setter}
-              placeholderTextColor={colors.palette.ctaHelper}
+              placeholderTextColor={colors.palette.neutral300}
               inputMode={signUpQuestion.placeholder === "Email" ? "email" : "text"}
-              secureTextEntry={
-                signUpQuestion.isPassword &&
-                !(signUpQuestion.placeholder === "Password" ? showPassword : showConfirmPassword)
-              }
+              autoCapitalize={"none"}
             />
-            {signUpQuestion.isPassword && (
-              <TouchableOpacity
-                onPress={() => {
-                  if (signUpQuestion.placeholder === "Password") {
-                    setShowPassword(!showPassword)
-                  } else {
-                    setShowConfirmPassword(!showConfirmPassword)
-                  }
-                }}
-              >
-                <Text style={styles.passwordToggle}>
-                  {signUpQuestion.placeholder === "Password"
-                    ? showPassword
-                      ? "Hide"
-                      : "Show"
-                    : showConfirmPassword
-                    ? "Hide"
-                    : "Show"}{" "}
-                  Password
-                </Text>
-              </TouchableOpacity>
-            )}
           </View>
         )}
       </View>
@@ -220,16 +201,22 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
   }
 
   if (loading)
-    // make better design
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.palette.neutral200,
+        }}
+      >
         <ActivityIndicator size={50} />
-        <Text style={styles.formDescription}>Please wait...</Text>
+        <Text style={styles.formDescription} text={"Please wait..."} preset="heading" />
       </SafeAreaView>
     )
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View>
         <View style={styles.indicatorContainer}>
           {signUpObject.map((_, index) => (
@@ -237,7 +224,7 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
               key={index}
               style={[
                 styles.indicator,
-                index === currentIndex && { backgroundColor: colors.palette.cta },
+                index === currentIndex && { backgroundColor: colors.palette.neutral800 },
               ]}
             />
           ))}
@@ -261,21 +248,20 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
           onPress={() => updateQuestion("next")}
         />
       </View>
-    </SafeAreaView>
+    </View>
   )
 })
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.palette.primary,
-    paddingHorizontal: 20,
+    backgroundColor: colors.palette.neutral200,
     justifyContent: "space-between",
   },
   indicatorContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 20,
+    paddingHorizontal: 20,
   },
   indicator: {
     flex: 1,
@@ -287,6 +273,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     justifyContent: "space-around",
     flexDirection: "row",
+    paddingBottom: 50,
+    paddingHorizontal: 5,
   },
   button: {
     flex: 1,
@@ -294,7 +282,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   formContainer: {
-    marginTop: 50,
+    marginTop: 15,
     marginHorizontal: 20,
   },
   formTitle: {
@@ -308,7 +296,7 @@ const styles = StyleSheet.create({
   },
   formInput: {
     marginTop: 25,
-    backgroundColor: colors.palette.secondary300,
+    backgroundColor: colors.palette.neutral100,
     paddingVertical: 20,
     paddingHorizontal: 10,
     borderRadius: 7,
