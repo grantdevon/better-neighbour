@@ -1,15 +1,15 @@
 {
   "name": "better-neighbour",
-  "displayName": "better-neighbour",
+  "displayName": "better neighbour",
   "expo": {
     "name": "better-neighbour",
     "slug": "better-neighbour",
     "scheme": "better-neighbour",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/app-icon-all.png",
+    "icon": "./assets/icons/icon.png",
     "splash": {
-      "image": "./assets/images/splash-logo-all.png",
+      "image": "./assets/images/splashImage.png",
       "resizeMode": "contain",
       "backgroundColor": "#191015"
     },
@@ -21,25 +21,25 @@
       "**/*"
     ],
     "android": {
-      "icon": "./assets/images/app-icon-android-legacy.png",
+      "icon": "./assets/icons/icon.png",
       "package": "com.betterneighbour",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/app-icon-android-adaptive-foreground.png",
+        "foregroundImage": "./assets/icons/icon.png",
         "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
       },
       "splash": {
-        "image": "./assets/images/splash-logo-android-universal.png",
+        "image": "./assets/images/splashImage.png",
         "resizeMode": "contain",
-        "backgroundColor": "#191015"
+        "backgroundColor": "#ffffff"
       }
     },
     "ios": {
-      "icon": "./assets/images/app-icon-ios.png",
+      "icon": "./assets/icons/icon.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.betterneighbour",
       "splash": {
-        "image": "./assets/images/splash-logo-ios-mobile.png",
-        "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
+        "image": "./assets/images/splashImage.png",
+        "tabletImage": "./assets/images/splashImage.png",
         "resizeMode": "contain",
         "backgroundColor": "#191015"
       }
@@ -65,6 +65,12 @@
           "android": {
             "newArchEnabled": false
           }
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
         }
       ],
       "expo-font"

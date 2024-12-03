@@ -287,7 +287,7 @@ const $actionTextContainer: ViewStyle = {
 }
 
 const $actionText: TextStyle = {
-  color: colors.tint,
+  color: colors.palette.neutral800,
 }
 
 const $actionIconContainer: ViewStyle = {
