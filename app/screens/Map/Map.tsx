@@ -143,12 +143,6 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
           latitudeDelta: 0.015,
           longitudeDelta: 0.0121,
         }}
-        initialRegion={{
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-          latitudeDelta: 0.015,
-          longitudeDelta: 0.0121,
-        }}
         zoomEnabled
         onRegionChangeComplete={(region) => setCurrentRegion(region)}
         maxZoomLevel={17}
