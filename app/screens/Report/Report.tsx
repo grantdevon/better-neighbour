@@ -3,10 +3,9 @@ import { useStores } from "app/models"
 import { firebaseModel } from "app/services/Firebase/firebase.service"
 import { colors } from "app/theme"
 import { getFormattedDate } from "app/utils/formatDate"
-import { southAfricaSuburbs } from "app/utils/location"
 import { useHeader } from "app/utils/useHeader"
 import { observer } from "mobx-react-lite"
-import { FC, useState } from "react"
+import { FC, useState, useEffect } from "react"
 import {
   SafeAreaView,
   View,
@@ -18,6 +17,7 @@ import {
 } from "react-native"
 import { Dropdown } from "react-native-element-dropdown"
 import { TextInput } from "react-native-gesture-handler"
+// import analytics from "@react-native-firebase/analytics"
 
 type ReportType = "Suspicious Activity" | "Crime" | "Be Alert"
 
@@ -44,6 +44,16 @@ interface ICoords {
   }
 }
 
+// Interface for Nominatim reverse geocoding response
+interface NominatimResponse {
+  address: {
+    suburb?: string
+    city_district?: string
+    county?: string
+    town?: string
+  }
+}
+
 export const Report: FC = observer(({ navigation, route }) => {
   const { coords } = route?.params
 
@@ -54,20 +64,19 @@ export const Report: FC = observer(({ navigation, route }) => {
   } = useStores()
 
   const [description, setDescription] = useState<string>("")
-
   const [loading, setLoading] = useState<boolean>(false)
+  const [locationLoading, setLocationLoading] = useState<boolean>(true)
 
   /**
    * For dropdown
    */
   const [value, setValue] = useState<string | null>(null)
-  const [isFocus, setIsFocus] = useState<boolean>(false)
 
   /**
-   * for location drop down
+   * for location input
    */
   const [locationValue, setLocationValue] = useState<string | null>(null)
-  const [isLocationInFocus, setIsLocationInFocus] = useState<boolean>(false)
+  const [isLocationAutoDetected, setIsLocationAutoDetected] = useState<boolean>(false)
 
   const dropDownData: IReportType[] = [
     { label: "Suspicious Activity", value: "Suspicious Activity" },
@@ -83,6 +92,65 @@ export const Report: FC = observer(({ navigation, route }) => {
     },
     [],
   )
+
+  /**
+   * Fetch location using Nominatim reverse geocoding
+   * Handles different address formats and fallbacks
+   */
+  const fetchLocationFromCoords = async (lat: number, lng: number): Promise<string | null> => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`,
+      )
+
+      if (!response.ok) {
+        throw new Error("Nominatim API request failed")
+      }
+
+      const data: NominatimResponse = await response.json()
+
+      console.log(data);
+      
+
+      // Prioritize suburb, then city_district, then county
+      const location = data.address.town || data.address.suburb || data.address.county || data.address.city_district 
+
+      // Verify the location is in South Africa (basic validation)
+      if (location) {
+        return location
+      }
+
+      return null
+    } catch (error) {
+      console.error("Error fetching location:", error)
+      return null
+    }
+  }
+
+  /**
+   * Auto-fetch location when component mounts
+   */
+  useEffect(() => {
+    const autoFetchLocation = async () => {
+      try {
+        setLocationLoading(true)
+        const location = await fetchLocationFromCoords(coords.lat, coords.lng)
+        console.log(location)
+
+        if (location) {
+          setLocationValue(location)
+          setIsLocationAutoDetected(true)
+        }
+      } catch (error) {
+        console.error("Location auto-fetch error:", error)
+        Alert.alert("Location Error", "Could not automatically detect location.")
+      } finally {
+        setLocationLoading(false)
+      }
+    }
+
+    autoFetchLocation()
+  }, [coords])
 
   const validated = (): boolean => {
     if (!value) return false
@@ -109,6 +177,10 @@ export const Report: FC = observer(({ navigation, route }) => {
         console.log("====================================")
         console.log("locations ", data.location)
         console.log("====================================")
+        // await analytics().logEvent("make_report", {
+        //   id: user.id,
+        //   name: user.firstName,
+        // })
         if (locations.length > 0) {
           await getReports("reports", getFormattedDate(), coords, locations)
         } else {
@@ -127,6 +199,24 @@ export const Report: FC = observer(({ navigation, route }) => {
     }
   }
 
+  // Location loading state
+  if (locationLoading) {
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.palette.neutral200,
+        }}
+      >
+        <ActivityIndicator size={"large"} color={colors.palette.neutral800} />
+        <Text>Detecting location...</Text>
+      </SafeAreaView>
+    )
+  }
+
+  // Report submission loading state
   if (loading) {
     return (
       <SafeAreaView
@@ -149,7 +239,7 @@ export const Report: FC = observer(({ navigation, route }) => {
         <View>
           <Text style={styles.inputLabel}>Report Type</Text>
           <Dropdown
-            style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+            style={[styles.dropdown, { borderColor: "blue" }]}
             placeholderStyle={styles.placeholderStyle}
             selectedTextStyle={styles.selectedTextStyle}
             inputSearchStyle={styles.inputSearchStyle}
@@ -157,35 +247,25 @@ export const Report: FC = observer(({ navigation, route }) => {
             maxHeight={300}
             labelField="label"
             valueField="value"
-            placeholder={!isFocus ? "Select item" : "..."}
+            placeholder={!value ? "Select item" : "..."}
             value={value}
-            onFocus={() => setIsFocus(true)}
-            onBlur={() => setIsFocus(false)}
             onChange={(item) => {
               setValue(item.value)
-              setIsFocus(false)
             }}
           />
+
           <Text style={styles.inputLabel}>Location</Text>
-          <Dropdown
-            style={[styles.dropdown, isLocationInFocus && { borderColor: "blue" }]}
-            placeholderStyle={styles.placeholderStyle}
-            selectedTextStyle={styles.selectedTextStyle}
-            inputSearchStyle={styles.inputSearchStyle}
-            search
-            data={southAfricaSuburbs}
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            placeholder={!isLocationInFocus ? "Select Location" : "..."}
-            value={locationValue}
-            onFocus={() => setIsLocationInFocus(true)}
-            onBlur={() => setIsLocationInFocus(false)}
-            onChange={(item) => {
-              setLocationValue(item.value)
-              setIsLocationInFocus(false)
-            }}
+          <TextInput
+            value={locationValue || ""}
+            editable={!isLocationAutoDetected}
+            style={[styles.input, isLocationAutoDetected && styles.autoDetectedInput]}
+            placeholder={isLocationAutoDetected ? "" : "Enter Location"}
+            // onChangeText={setLocationValue}
           />
+          {isLocationAutoDetected && (
+            <Text style={styles.autoDetectedText}>Location auto-detected from coordinates</Text>
+          )}
+
           <Text style={styles.inputLabel}>Description</Text>
           <TextInput
             maxLength={250}
@@ -218,15 +298,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: colors.palette.neutral200,
   },
-  label: {
-    position: "absolute",
-    backgroundColor: "white",
-    left: 22,
-    top: 8,
-    zIndex: 999,
-    paddingHorizontal: 8,
-    fontSize: 14,
-  },
   dropdown: {
     height: 50,
     borderColor: "gray",
@@ -234,18 +305,22 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 8,
   },
-  placeholderStyle: {
-    fontSize: 16,
-  },
-  selectedTextStyle: {
-    fontSize: 16,
-  },
   input: {
     borderWidth: 1,
     borderRadius: 7,
     paddingVertical: 15,
     borderColor: "grey",
     paddingHorizontal: 10,
+  },
+  autoDetectedInput: {
+    backgroundColor: colors.palette.neutral300,
+    color: colors.palette.neutral700,
+  },
+  autoDetectedText: {
+    fontSize: 12,
+    color: colors.palette.neutral600,
+    marginTop: 5,
+    marginBottom: 10,
   },
   inputDescription: {
     borderWidth: 1,
@@ -255,10 +330,6 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingTop: 15,
   },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
-  },
   inputLabel: {
     fontSize: 17,
     fontWeight: "bold",
@@ -266,5 +337,15 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginVertical: 50,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
   },
 })

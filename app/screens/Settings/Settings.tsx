@@ -262,6 +262,7 @@ export const Settings: FC<settingsProps> = observer(({navigation}) => {
 const styles = StyleSheet.create({
   screen: {
     backgroundColor: colors.palette.neutral100,
+    paddingTop: 15
   },
   profileContainer: {
     paddingTop: 30,

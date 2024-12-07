@@ -174,7 +174,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
     return (
       <View style={styles.container}>
         <View style={styles.EmptyStateCard}>
-          <Text style={styles.emptyStateText}>No locations set, please set a location!</Text>
+          <Text style={styles.emptyStateText}>No suburbs set, please set a suburb!</Text>
           <LottieView
             source={require("../../../assets/animations/aura.json")}
             style={styles.emptyStateLottieAnimation}
@@ -183,7 +183,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
           />
           <Button
             preset="filled"
-            text="Set a location"
+            text="Set a suburb"
             onPress={() =>
               navigation.navigate("Locations", {
                 coords: { lat: location?.coords.latitude, lng: location?.coords.longitude },
