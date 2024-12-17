@@ -6,6 +6,7 @@ import { useHeader } from "app/utils/useHeader"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
 import { ActivityIndicator, SafeAreaView, StyleSheet, TextInput, View } from "react-native"
+// import analytics from "@react-native-firebase/analytics"
 
 export const Feedback: FC = observer(({ navigation }) => {
   useHeader({
@@ -49,6 +50,10 @@ export const Feedback: FC = observer(({ navigation }) => {
       userId: user.id,
       name: user.firstName,
     })
+    // await analytics().logEvent("submit_feedback", {
+    //   id: user.id,
+    //   name: user.firstName,
+    // })
     navigation.navigate("Settings")
     setLoading(false)
   }

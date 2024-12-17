@@ -1,9 +1,9 @@
-import { Alert, StyleSheet, View } from "react-native"
+import { StyleSheet, View, TouchableOpacity } from "react-native"
 import React, { FC, useCallback, useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { MapStackParamList } from "app/navigators"
-import MapView, { Heatmap, Marker, PROVIDER_GOOGLE, Region } from "react-native-maps"
+import MapView, { Heatmap, PROVIDER_GOOGLE, Region } from "react-native-maps"
 import { FAB, Icon } from "@rneui/themed"
 import { colors } from "app/theme"
 import { useStores } from "app/models"
@@ -59,8 +59,9 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
     if (mapState === "HeatMap") {
       Toast.show({
         type: "info",
-        text1: "hold to drag marker",
-        visibilityTime: 3000,
+        text1: "Move the map to place your pin",
+        text2: "The pin will be at the center of the screen",
+        visibilityTime: 5000,
       })
       setCoords({
         latitude: currentRegion.latitude,
@@ -70,24 +71,14 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
     setMapState(state)
   }
 
-  const confirmEvent = (coords: { latitude: number; longitude: number }) => {
-    Alert.alert(
-      "Please confirm.",
-      "Are you sure you would like to add a marker at this location?",
-      [
-        {
-          text: "Yes",
-          onPress: () =>
-            navigation.navigate("Report", {
-              coords: { lat: coords.latitude, lng: coords.longitude },
-            }),
-        },
-        {
-          text: "Cancel",
-          onPress: () => {},
-        },
-      ],
-    )
+  const confirmEvent = () => {
+    navigation.navigate("Report", {
+      coords: { lat: currentRegion.latitude, lng: currentRegion.longitude },
+    })
+  }
+
+  const cancelPinMode = () => {
+    setMapState("HeatMap")
   }
 
   const updateMapData = async () => {
@@ -142,6 +133,7 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         mapType="standard"
         style={styles.map}
         provider={PROVIDER_GOOGLE}
@@ -155,24 +147,7 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
         onRegionChangeComplete={(region) => setCurrentRegion(region)}
         maxZoomLevel={17}
       >
-        {mapState === "Pin" ? (
-          <Marker
-            coordinate={coords}
-            draggable={true}
-            onDragEnd={(e) => confirmEvent(e.nativeEvent.coordinate)}
-            onPress={(e) => confirmEvent(e.nativeEvent.coordinate)}
-          >
-            <View>
-              <View style={{ backgroundColor: "white" }}>
-                <Text
-                  text="Tap or drag to set report location"
-                  style={{ color: colors.palette.angry500 }}
-                />
-              </View>
-              <Icon name="map-pin" type="feather" color={colors.palette.angry500} size={30} />
-            </View>
-          </Marker>
-        ) : heatMapData.length > 0 ? (
+        {heatMapData.length > 0 && mapState === "HeatMap" ? (
           <Heatmap
             points={heatMapData}
             opacity={0.8}
@@ -185,13 +160,65 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
           />
         ) : null}
       </MapView>
-      <FAB
-        onPress={pinPoint}
-        placement="right"
-        title={mapState === "HeatMap" ? "Make a report" : "HeatMap"}
-        icon={{ name: mapState === "HeatMap" ? "warning" : "map", color: "white" }}
-        color={colors.palette.angry500}
-      />
+
+      {mapState === "Pin" && (
+        <View style={styles.pinContainer}>
+          <View style={styles.pinWrapper}>
+            <Icon 
+              name="map-pin" 
+              type="feather" 
+              color={colors.palette.angry500} 
+              size={40} 
+            />
+          </View>
+        </View>
+      )}
+
+      {mapState === "Pin" && (
+        <View style={styles.bottomSheet}>
+          <View style={styles.bottomSheetContent}>
+            <Text 
+              text="Set Report Location" 
+              style={styles.bottomSheetTitle}
+            />
+            <Text 
+              text="Move the map to position your pin" 
+              style={styles.bottomSheetSubtitle}
+            />
+            <TouchableOpacity 
+              style={styles.confirmButton}
+              onPress={confirmEvent}
+            >
+              <Text 
+                text="Confirm Location" 
+                style={styles.confirmButtonText}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.cancelButton}
+              onPress={cancelPinMode}
+            >
+              <Text 
+                text="Cancel" 
+                style={styles.cancelButtonText}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {mapState === "HeatMap" && (
+        <FAB
+          onPress={pinPoint}
+          placement="right"
+          title="Make a report"
+          icon={{ 
+            name: "warning", 
+            color: "white" 
+          }}
+          color={colors.palette.angry500}
+        />
+      )}
     </View>
   )
 })
@@ -206,5 +233,77 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+  },
+  pinContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pinWrapper: {
+    marginBottom: 100,
+  },
+  bottomSheet: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  bottomSheetContent: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  bottomSheetTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  bottomSheetSubtitle: {
+    color: 'gray',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  confirmButton: {
+    backgroundColor: colors.palette.angry500,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  confirmButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  cancelButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+    width: '100%',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.palette.angry500,
+  },
+  cancelButtonText: {
+    color: colors.palette.angry500,
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 })
