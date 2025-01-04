@@ -1,8 +1,8 @@
-import { Alert, SafeAreaView, StyleSheet, View } from "react-native"
+import { Alert, SafeAreaView, StyleSheet, View, Share } from "react-native"
 import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
-import { AppStackParamList } from "app/navigators"
+import { SettingsStackParamList } from "app/navigators"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import Icon from "react-native-vector-icons/Ionicons"
 import { colors } from "app/theme"
@@ -13,7 +13,7 @@ import SettingsLoader from "./Settings.loader"
 import { Screen, Text } from "app/components"
 import { firebaseModel } from "app/services/Firebase/firebase.service"
 
-type settingsProps = NativeStackScreenProps<AppStackParamList, "Settings">
+type settingsProps = NativeStackScreenProps<SettingsStackParamList, "Settings">
 
 interface ActionProps {
   title: string
@@ -26,7 +26,7 @@ const pkg = require("../../../package.json")
 
 const appVersion = pkg.version
 
-export const Settings: FC<settingsProps> = observer(({navigation}) => {
+export const Settings: FC<settingsProps> = observer(({ navigation }) => {
   const {
     userStore: { getUser, signOut, user },
   } = useStores()
@@ -45,7 +45,7 @@ export const Settings: FC<settingsProps> = observer(({navigation}) => {
     {
       title: "Share with friends",
       icon: "share-social",
-      action: () => actionDisabledAlert(),
+      action: () => shareApplication(),
       type: "primary",
     },
     {
@@ -66,8 +66,32 @@ export const Settings: FC<settingsProps> = observer(({navigation}) => {
   const [loading, setLoading] = useState<boolean>(true)
 
   const actionDisabledAlert = () => {
-    Alert.alert("", "This function is disabled during beta")
+    Alert.alert("", "This function is disabled during beta testing.")
   }
+
+  const shareApplication = async () => {
+    try {
+      const result = await Share.share({
+        message:
+          "🌟 Become a better neighbour and keep your community safe by joining Better Neighbor! 🌍\n\n" +
+          "📲 Download the app now:\n" +
+          "👉 https://play.google.com/store/apps/details?id=com.betterneighbour",
+      });
+  
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log("Shared with activity type: ", result.activityType);
+        } else {
+          console.log("App successfully shared!");
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log("Sharing dismissed.");
+      }
+    } catch (error) {
+      Alert.alert("Error", "An error occurred while trying to share the app. Please try again.");
+      console.error(error);
+    }
+  };
 
   const Profile = ({ user }: { user: User }) => {
     return (
@@ -194,13 +218,13 @@ export const Settings: FC<settingsProps> = observer(({navigation}) => {
         {
           text: "Yes I am sure",
           onPress: () => firebaseModel.deleteUser(),
-          style: "destructive"
+          style: "destructive",
         },
         {
           text: "Cancel",
-          onPress: () => {}
-        }
-      ]
+          onPress: () => {},
+        },
+      ],
     )
   }
 
@@ -262,7 +286,7 @@ export const Settings: FC<settingsProps> = observer(({navigation}) => {
 const styles = StyleSheet.create({
   screen: {
     backgroundColor: colors.palette.neutral100,
-    paddingTop: 15
+    paddingTop: 15,
   },
   profileContainer: {
     paddingTop: 30,

@@ -109,11 +109,13 @@ export const Report: FC = observer(({ navigation, route }) => {
 
       const data: NominatimResponse = await response.json()
 
-      console.log(data);
-      
 
       // Prioritize suburb, then city_district, then county
-      const location = data.address.town || data.address.suburb || data.address.county || data.address.city_district 
+      const location =
+        data.address.town ||
+        data.address.suburb ||
+        data.address.county ||
+        data.address.city_district
 
       // Verify the location is in South Africa (basic validation)
       if (location) {
@@ -165,7 +167,7 @@ export const Report: FC = observer(({ navigation, route }) => {
         userId: user.id,
         name: user.firstName,
         description: description,
-        location: locationValue,
+        location: locationValue?.toLowerCase(),
         reportType: value as string,
         date: getFormattedDate(),
         time: new Date().toTimeString(),
@@ -174,6 +176,13 @@ export const Report: FC = observer(({ navigation, route }) => {
       try {
         setLoading(true)
         await firebaseModel.createDoc("reports", data)
+        const updatedLocations = locations.includes(data.location?.toLowerCase())
+          ? locations
+          : [...locations, data.location?.toLowerCase()]
+
+        console.log("====================================")
+        console.log(updatedLocations)
+        console.log("====================================")
         console.log("====================================")
         console.log("locations ", data.location)
         console.log("====================================")
@@ -181,12 +190,10 @@ export const Report: FC = observer(({ navigation, route }) => {
         //   id: user.id,
         //   name: user.firstName,
         // })
-        if (locations.length > 0) {
-          await getReports("reports", getFormattedDate(), coords, locations)
-        } else {
-          await getReports("reports", getFormattedDate(), coords, [data.location])
-        }
+        await getReports("reports", getFormattedDate(), coords, updatedLocations)
         setMapState("HeatMap")
+        await new Promise((resolve) => setTimeout(resolve, 100))
+
         navigation.navigate("Map")
         setLoading(false)
       } catch (error) {

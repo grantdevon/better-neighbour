@@ -1,12 +1,12 @@
 import React, { useState, useCallback, useEffect, useRef } from "react"
-import { 
-  View, 
-  TextInput, 
-  TouchableOpacity, 
-  FlatList, 
-  StyleSheet, 
-  ActivityIndicator, 
-  Modal 
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  Modal,
 } from "react-native"
 import { observer } from "mobx-react-lite"
 import Icon from "react-native-vector-icons/Ionicons"
@@ -22,20 +22,17 @@ import { StatusBar } from "expo-status-bar"
 
 // Simplified Location Type to match existing implementation
 interface LocationData {
-  name: string;       // Display name of location
-  fullAddress: string; // Full address for context
+  name: string // Display name of location
+  fullAddress: string // Full address for context
 }
 
 interface LocationSearchProps {
-  onLocationSelect: (location: string) => void;
-  selectedLocations: string[];
+  onLocationSelect: (location: string) => void
+  selectedLocations: string[]
 }
 
 // Custom Location Search Component
-const LocationSearch: React.FC<LocationSearchProps> = ({
-  onLocationSelect, 
-  selectedLocations 
-}) => {
+const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationSelect, selectedLocations }) => {
   // State Management with Strict Typing
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [locations, setLocations] = useState<LocationData[]>([])
@@ -47,6 +44,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   const searchInputRef = useRef<TextInput>(null)
 
   // Debounced Nominatim Search with Comprehensive Error Handling
+  // Debounced Nominatim Search with Comprehensive Error Handling
   const searchLocations = useCallback(
     debounce(async (query: string) => {
       // Validate search query
@@ -54,53 +52,55 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         setLocations([])
         return
       }
-  
+
       setLoading(true)
       setError(null)
-  
+
       try {
-        const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+        const response = await axios.get("https://nominatim.openstreetmap.org/search", {
           params: {
             q: query,
-            format: 'json',
+            format: "json",
             addressdetails: 1,
-            countrycodes: 'za', // South Africa specific
-            limit: 10
+            countrycodes: "za", // South Africa specific
+            limit: 10,
           },
           headers: {
-            'User-Agent': 'YourAppName/1.0' 
-          }
+            "User-Agent": "YourAppName/1.0",
+          },
         })
-  
+
         // More robust location formatting
-        const formattedLocations: LocationData[] = response.data.map(item => {
-          // Try to extract suburb or most specific location name
-          const nameParts = item.display_name.split(',')
-          const name = 
-            item.address.suburb || 
-            item.address.city_district || 
-            item.address.town || 
-            nameParts[0]
-  
+        const formattedLocations: LocationData[] = response.data.map((item) => {
+          const nameParts = item.display_name.split(",")
+          const name =
+            item.address.suburb || item.address.city_district || item.address.town || nameParts[0]
+
           return {
             name: name,
-            fullAddress: item.display_name
+            fullAddress: item.display_name,
           }
         })
-  
+
+        // Add the user's input as a selectable option if no results found
+        if (formattedLocations.length === 0) {
+          formattedLocations.push({
+            name: query,
+            fullAddress: `Custom location: ${query}`,
+          })
+        }
+
         setLocations(formattedLocations)
       } catch (err) {
-        const errorMessage = err instanceof Error 
-          ? err.message 
-          : 'Unable to fetch locations'
-        
+        const errorMessage = err instanceof Error ? err.message : "Unable to fetch locations"
+
         setError(errorMessage)
-        console.error('Location Search Error:', err)
+        console.error("Location Search Error:", err)
       } finally {
         setLoading(false)
       }
     }, 500),
-    []
+    [],
   )
   // Effect to trigger search on query change
   useEffect(() => {
@@ -111,7 +111,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
   // Render Location Item in Dropdown
   const renderLocationItem = ({ item }: { item: LocationData }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.locationItem}
       onPress={() => {
         onLocationSelect(item.name)
@@ -129,14 +129,11 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
   return (
     <View style={styles.searchContainer}>
-      <TouchableOpacity 
-        style={styles.searchInputContainer}
-        onPress={() => setModalVisible(true)}
-      >
+      <TouchableOpacity style={styles.searchInputContainer} onPress={() => setModalVisible(true)}>
         <Icon name="search" size={20} color={colors.text} />
         <Text style={styles.searchPlaceholder}>
-          {selectedLocations.length > 0 
-            ? `${selectedLocations.length} suburb(s) selected` 
+          {selectedLocations.length > 0
+            ? `${selectedLocations.length} suburb(s) selected`
             : "Search locations"}
         </Text>
       </TouchableOpacity>
@@ -167,16 +164,14 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
             {/* Loading and Error States */}
             {loading && (
-              <ActivityIndicator 
-                size="large" 
-                color={colors.palette.primary500} 
-                style={styles.loadingIndicator} 
+              <ActivityIndicator
+                size="large"
+                color={colors.palette.primary500}
+                style={styles.loadingIndicator}
               />
             )}
 
-            {error && (
-              <Text style={styles.errorText}>{error}</Text>
-            )}
+            {error && <Text style={styles.errorText}>{error}</Text>}
 
             {/* Location Results */}
             <FlatList
@@ -186,7 +181,9 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
               style={styles.locationList}
               ListEmptyComponent={() => (
                 <Text style={styles.emptyListText}>
-                  {searchQuery ? "No locations found" : "Start typing to search"}
+                  {searchQuery
+                    ? `No locations found. Tap "Custom location: ${searchQuery}" to select your input.`
+                    : "Start typing to search"}
                 </Text>
               )}
             />
@@ -202,7 +199,7 @@ export const Locations = observer(({ navigation, route }) => {
 
   const {
     reportStore: { getReports },
-    userStore: { locations, addLocation, removeLocation },
+    userStore: { locations, addLocation },
   } = useStores()
 
   // State for selected locations
@@ -219,7 +216,7 @@ export const Locations = observer(({ navigation, route }) => {
   const handleLocationSelect = (location: string) => {
     // Prevent duplicate selections
     if (!selectedLocations.includes(location)) {
-      setSelectedLocations(prev => [...prev, location])
+      setSelectedLocations((prev) => [...prev, location])
     }
   }
 
@@ -239,31 +236,27 @@ export const Locations = observer(({ navigation, route }) => {
     <View style={styles.container}>
       <StatusBar style="auto" />
 
-      <LocationSearch 
+      <LocationSearch
         onLocationSelect={handleLocationSelect}
         selectedLocations={selectedLocations}
       />
 
       {/* Selected Locations Display */}
       <View style={styles.selectedLocationsContainer}>
-        {selectedLocations.map(location => (
+        {selectedLocations.map((location) => (
           <View key={location} style={styles.selectedLocationChip}>
             <Text>{location}</Text>
-            <TouchableOpacity 
-              onPress={() => 
-                setSelectedLocations(prev => 
-                  prev.filter(loc => loc !== location)
-                )
-              }
+            <TouchableOpacity
+              onPress={() => setSelectedLocations((prev) => prev.filter((loc) => loc !== location))}
             >
-              <Icon name="close" size={25} color={colors.text} style={{paddingLeft: 5}}/>
+              <Icon name="close" size={25} color={colors.text} style={{ paddingLeft: 5 }} />
             </TouchableOpacity>
           </View>
         ))}
       </View>
 
-      <Button 
-        text="Save Suburbs" 
+      <Button
+        text="Save Suburbs"
         onPress={saveLocations}
         disabled={selectedLocations.length === 0}
         style={styles.saveButton}
@@ -276,97 +269,97 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
-    backgroundColor: colors.background
+    backgroundColor: colors.background,
   },
   heading: {
-    marginBottom: 15
+    marginBottom: 15,
   },
   searchContainer: {
-    marginBottom: 15
+    marginBottom: 15,
   },
   searchInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 10,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 8
+    borderRadius: 8,
   },
   searchPlaceholder: {
     marginLeft: 10,
-    color: colors.text
+    color: colors.text,
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)'
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 15,
-    maxHeight: '80%'
+    maxHeight: "80%",
   },
   modalSearchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 8,
     padding: 10,
-    marginBottom: 10
+    marginBottom: 10,
   },
   modalSearchInput: {
     flex: 1,
-    marginHorizontal: 10
+    marginHorizontal: 10,
   },
   locationList: {
-    maxHeight: 300
+    maxHeight: 300,
   },
   locationItem: {
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border
+    borderBottomColor: colors.border,
   },
   locationName: {
-    fontWeight: 'bold'
+    fontWeight: "bold",
   },
   locationAddress: {
-    color: colors.text
+    color: colors.text,
   },
   selectedLocationsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 15
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 15,
   },
   selectedLocationChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    margin: 5
+    margin: 5,
   },
   saveButton: {
-    marginTop: 'auto'
+    marginTop: "auto",
   },
   loadingIndicator: {
-    marginVertical: 15
+    marginVertical: 15,
   },
   errorText: {
     color: colors.error,
-    textAlign: 'center',
-    marginVertical: 10
+    textAlign: "center",
+    marginVertical: 10,
   },
   emptyListText: {
-    textAlign: 'center',
+    textAlign: "center",
     color: colors.text,
-    marginVertical: 20
-  }
+    marginVertical: 20,
+  },
 })
 
 export default Locations

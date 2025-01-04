@@ -8,4 +8,5 @@ export * from "./Home/Home"
 export * from "./Report/Report"
 export * from "./Locations/Locations"
 export * from "./Feedback/Feedback"
+export * from "./Welcome/Welcome"
 // export other screens here

@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity } from "react-native"
+import { StyleSheet, View, TouchableOpacity, Alert } from "react-native"
 import React, { FC, useCallback, useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
