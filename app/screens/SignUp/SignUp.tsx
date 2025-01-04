@@ -117,9 +117,27 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
       if (currentQuestion.placeholder === "Email") {
         Alert.alert("Please enter a valid email address.")
       } else if (currentQuestion.placeholder === "Password") {
-        Alert.alert(
-          "Password must be at least 6 characters, contain an uppercase letter, a lowercase letter, a number, and a special character.",
-        )
+        const password = currentQuestion.value
+        const issues: string[] = []
+
+        if (password.length < 6) {
+          issues.push("be at least 6 characters long")
+        }
+        if (!/[A-Z]/.test(password)) {
+          issues.push("contain an uppercase letter")
+        }
+        if (!/[a-z]/.test(password)) {
+          issues.push("contain a lowercase letter")
+        }
+        if (!/\d/.test(password)) {
+          issues.push("contain a number")
+        }
+        if (!/[!@#$%^&*(),.?":{}|<>_\[\]\-+=;'/`~|\\]/.test(password)) {
+          issues.push("contain a special character. for example: # @ ! $ %")
+        }
+
+        const errorMessage = `Password must:\n- ${issues.join("\n- ")}`
+        Alert.alert("Invalid Password", errorMessage)
       } else if (currentQuestion.placeholder === "Confirm password") {
         Alert.alert("Passwords do not match.")
       } else {
@@ -140,7 +158,7 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
     const hasUppercase = /[A-Z]/.test(password)
     const hasLowercase = /[a-z]/.test(password)
     const hasNumber = /\d/.test(password)
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>_\[\]\-+=;'/`~|\\]/.test(password)
 
     return minLength && hasUppercase && hasLowercase && hasNumber && hasSpecialChar
   }
