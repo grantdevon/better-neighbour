@@ -1,5 +1,5 @@
 import React from "react"
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity, Share, Alert } from "react-native"
 import { colors } from "app/theme"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { formatToLocalTime } from "app/utils/formatDate"
@@ -25,9 +25,9 @@ export const ReportCard = ({ item, onPress }) => {
       case "crime":
         return "rgba(239, 68, 68, 0.1)" // red with opacity
       case "suspicious activity":
-        return "rgba(234, 179, 8, 0.1)"// yellow with opacity
+        return "rgba(234, 179, 8, 0.1)" // yellow with opacity
       case "be alert":
-        return "rgba(234, 179, 8, 0.1)" 
+        return "rgba(234, 179, 8, 0.1)"
       default:
         return "rgba(59, 130, 246, 0.1)" // blue with opacity
     }
@@ -42,6 +42,30 @@ export const ReportCard = ({ item, onPress }) => {
         return "#B45309"
       default:
         return "#2563EB"
+    }
+  }
+
+  const handleShare = async () => {
+    try {
+      const result = await Share.share({
+        message:
+          "🌟 Become a better neighbour and keep your community safe by joining Better Neighbor! 🌍\n\n" +
+          "📲 Download the app now:\n" +
+          "👉 https://play.google.com/store/apps/details?id=com.betterneighbour",
+      })
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log("Shared with activity type: ", result.activityType)
+        } else {
+          console.log("App successfully shared!")
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log("Sharing dismissed.")
+      }
+    } catch (error) {
+      Alert.alert("Error", "An error occurred while trying to share the app. Please try again.")
+      console.error(error)
     }
   }
 
@@ -82,14 +106,19 @@ export const ReportCard = ({ item, onPress }) => {
           </Text>
         )}
 
-        <TouchableOpacity style={styles.viewButton} onPress={onPress}>
-          <Text style={styles.viewButtonText}>View Details</Text>
-          <MaterialCommunityIcons
-            name="chevron-right"
-            size={20}
-            color={colors.palette.neutral100}
-          />
-        </TouchableOpacity>
+        <View style={styles.cardActions}>
+          <TouchableOpacity style={styles.viewButton} onPress={onPress}>
+            <Text style={styles.viewButtonText}>View Details</Text>
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={20}
+              color={colors.palette.neutral100}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
+             <MaterialCommunityIcons name="share" size={20} color={colors.palette.angry100} />
+          </TouchableOpacity>
+        </View>
       </View>
     </TouchableOpacity>
   )
@@ -101,6 +130,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.palette.neutral100,
     borderRadius: 16,
     marginVertical: 6,
+    marginHorizontal: 10,
     padding: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -171,5 +201,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginRight: 4,
+  },
+  cardActions: {
+    flexDirection: "row",
+  },
+  shareButton: {
+    backgroundColor: colors.palette.primary400,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 10,
+    paddingHorizontal: 10,
+    borderRadius: 8,
   },
 })

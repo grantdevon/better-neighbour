@@ -1,4 +1,4 @@
-import { Alert, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native"
+import { Alert, RefreshControl, Share, StyleSheet, Text, TextInput, View } from "react-native"
 import React, { FC, useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
@@ -51,6 +51,9 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
     try {
       let coords = { lat: location?.coords.latitude, lng: location?.coords.longitude }
       if (locations.length > 0) {
+        console.log("====================================")
+        console.log(locations)
+        console.log("====================================")
         await getReports("reports", getFormattedDate(), coords, locations)
       }
       setLoading(false)
@@ -79,6 +82,39 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
     )
   })
 
+  const ShareCard = () => {
+    const handleShare = async () => {
+      try {
+        const result = await Share.share({
+          message:
+            "🌟 Become a better neighbour and keep your community safe by joining Better Neighbor! 🌍\n\n" +
+            "📲 Download the app now:\n" +
+            "👉 https://play.google.com/store/apps/details?id=com.betterneighbour",
+        })
+
+        if (result.action === Share.sharedAction) {
+          if (result.activityType) {
+            console.log("Shared with activity type: ", result.activityType)
+          } else {
+            console.log("App successfully shared!")
+          }
+        } else if (result.action === Share.dismissedAction) {
+          console.log("Sharing dismissed.")
+        }
+      } catch (error) {
+        Alert.alert("Error", "An error occurred while trying to share the app. Please try again.")
+        console.error(error)
+      }
+    }
+
+    return (
+      <View style={styles.shareCard}>
+        <Text style={styles.shareCardText}>Enjoying the app? Invite your friends to join!</Text>
+        <Button preset="filled" text="Share Now" onPress={handleShare} style={styles.shareButton} />
+      </View>
+    )
+  }
+
   const RenderCards = ({ item }) => {
     return (
       <ReportCard item={item} onPress={() => handleActionSheet(item.coords.lat, item.coords.lng)} />
@@ -95,20 +131,23 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
     }
 
     return (
-      <View style={styles.EmptyStateCard}>
-        <Text style={styles.emptyStateText}>No activity so far!</Text>
-        <LottieView
-          source={require("../../../assets/animations/aura.json")}
-          style={styles.emptyStateLottieAnimation}
-          autoPlay
-          loop
-        />
-        <Button
-          preset="filled"
-          text="Make a report"
-          onPress={navToReport}
-          style={styles.emptyStateButton}
-        />
+      <View>
+        <ShareCard />
+        <View style={styles.EmptyStateCard}>
+          <Text style={styles.emptyStateText}>No activity so far!</Text>
+          <LottieView
+            source={require("../../../assets/animations/aura.json")}
+            style={styles.emptyStateLottieAnimation}
+            autoPlay
+            loop
+          />
+          <Button
+            preset="filled"
+            text="Make a report"
+            onPress={navToReport}
+            style={styles.emptyStateButton}
+          />
+        </View>
       </View>
     )
   }
@@ -437,5 +476,35 @@ const styles = StyleSheet.create({
   },
   plusChipText: {
     color: colors.palette.neutral800,
+  },
+
+  shareCard: {
+    backgroundColor: colors.palette.neutral100,
+    borderRadius: 10,
+    padding: 15,
+    margin: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+    alignItems: "center",
+  },
+  shareCardText: {
+    fontSize: 16,
+    color: colors.palette.neutral700,
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  shareButton: {
+    width: "100%",
+    backgroundColor: colors.palette.secondary100,
+  },
+  cardShareButton: {
+    marginHorizontal: 15,
+    marginTop: 10,
+    marginBottom: 15,
+    backgroundColor: colors.palette.secondary100,
+    borderRadius: 7,
   },
 })

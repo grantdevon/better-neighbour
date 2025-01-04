@@ -162,8 +162,9 @@ const AuthStack = observer(function AuthStack() {
   return (
     <AuthStackNavigator.Navigator
       screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
+      initialRouteName="Welcome"
     >
-      {/* <AuthStackNavigator.Screen name="Welcome" component={Screens.WelcomeScreen} /> */}
+      <AuthStackNavigator.Screen name="Welcome" component={Screens.Welcome} />
       <AuthStackNavigator.Screen name="Login" component={Screens.Login} />
       <AuthStackNavigator.Screen name="SignUp" component={Screens.SignUp} />
     </AuthStackNavigator.Navigator>
