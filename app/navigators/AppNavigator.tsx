@@ -17,6 +17,9 @@ import auth from "@react-native-firebase/auth"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import Icon from "react-native-vector-icons/Ionicons"
 import Toast from "react-native-toast-message"
+import { requestUserPermission } from "app/utils/permissions"
+import messaging from "@react-native-firebase/messaging";
+
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -190,6 +193,29 @@ export const AppNavigator = observer(function AppNavigator(props: NavigationProp
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged)
     return subscriber
   }, [])
+
+  useEffect(() => {
+    requestUserPermission()
+  }, [])
+
+  useEffect(() => {
+    const getToken = async () => {
+      const token = await messaging().getToken();
+      console.log("FCM Token:", token);
+      // Send this token to your backend to target the device
+    };
+  
+    getToken();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = messaging().onTokenRefresh(token => {
+      console.log("FCM Token refreshed:", token);
+      // Update your backend with the new token
+    });
+  
+    return unsubscribe; // Cleanup the listener when the component unmounts
+  }, []);
 
   if (initializing) return null
 
