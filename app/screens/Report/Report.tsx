@@ -76,6 +76,7 @@ export const Report: FC = observer(({ navigation, route }) => {
    * for location input
    */
   const [locationValue, setLocationValue] = useState<string | null>(null)
+  const [ProvinceValue, setProvinceValue] = useState<string | null>(null)
   const [isLocationAutoDetected, setIsLocationAutoDetected] = useState<boolean>(false)
 
   const dropDownData: IReportType[] = [
@@ -109,6 +110,10 @@ export const Report: FC = observer(({ navigation, route }) => {
 
       const data: NominatimResponse = await response.json()
 
+      console.log('====================================');
+      console.log(data);
+      console.log('====================================');
+
 
       // Prioritize suburb, then city_district, then county
       const location =
@@ -119,6 +124,7 @@ export const Report: FC = observer(({ navigation, route }) => {
 
       // Verify the location is in South Africa (basic validation)
       if (location) {
+        setProvinceValue(data.address.county)
         return location
       }
 
@@ -168,6 +174,7 @@ export const Report: FC = observer(({ navigation, route }) => {
         name: user.firstName,
         description: description,
         location: locationValue?.toLowerCase(),
+        province: ProvinceValue,
         reportType: value as string,
         date: getFormattedDate(),
         time: new Date().toTimeString(),

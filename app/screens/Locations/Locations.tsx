@@ -198,7 +198,7 @@ export const Locations = observer(({ navigation, route }) => {
   const { coords } = route?.params
 
   const {
-    reportStore: { getReports },
+    reportStore: { getReports, getProvinceReports },
     userStore: { locations, addLocation },
   } = useStores()
 

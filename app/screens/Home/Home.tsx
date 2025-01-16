@@ -1,4 +1,13 @@
-import { Alert, RefreshControl, Share, StyleSheet, Text, TextInput, View } from "react-native"
+import {
+  Alert,
+  Linking,
+  RefreshControl,
+  Share,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native"
 import React, { FC, useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
@@ -15,6 +24,16 @@ import * as Location from "expo-location"
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet"
 import MapView, { Heatmap, PROVIDER_GOOGLE } from "react-native-maps"
 import { Chip } from "@rneui/base"
+import { fetchLocationFromCoords } from "app/utils/map"
+
+interface NominatimResponse {
+  address: {
+    suburb?: string
+    city_district?: string
+    county?: string
+    town?: string
+  }
+}
 
 type homeProps = NativeStackScreenProps<AppStackParamList, "HomeTab">
 
@@ -27,7 +46,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
   })
 
   const {
-    reportStore: { getReports, reports },
+    reportStore: { getReports, getProvinceReports, reports },
     mapStore: { setMapState },
     userStore: { locations, removeLocation },
   } = useStores()
@@ -37,7 +56,9 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
   const [loading, setLoading] = useState<boolean>(true)
   const [refreshing, setRefreshing] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const [location, setLocation] = useState<Location.LocationObject | null>(null)
+  const [location, setLocation] = useState<Location.LocationObject | null>({
+    coords: { latitude: 0, longitude: 0 },
+  })
   const [heatMap, setHeatMap] = useState<any>([
     {
       latitude: location?.coords.latitude,
@@ -46,16 +67,35 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
       text: "string",
     },
   ])
+  const [locationPermission, setLocationPermission] = useState<boolean>(true)
 
   const updateHomePageData = async () => {
     try {
       let coords = { lat: location?.coords.latitude, lng: location?.coords.longitude }
-      if (locations.length > 0) {
-        console.log("====================================")
-        console.log(locations)
-        console.log("====================================")
-        await getReports("reports", getFormattedDate(), coords, locations)
-      }
+      let newLocation = await Location.getCurrentPositionAsync({})
+      setLocation(newLocation)
+      console.log(newLocation)
+
+      // if (locations.length > 0) {
+      //   console.log("====================================")
+      //   console.log("locations")
+      //   console.log("====================================")
+      //   await getReports("reports", getFormattedDate(), coords, locations)
+      // } else
+      //  {
+      // if (coords) {
+
+      const province = await fetchLocationFromCoords(
+        newLocation.coords.latitude,
+        newLocation.coords.longitude,
+      )
+      console.log("====================================")
+      console.log(province)
+      console.log("====================================")
+      await getProvinceReports("reports", getFormattedDate(), coords, province)
+      // }
+
+      // }
       setLoading(false)
     } catch (error) {
       setLoading(false)
@@ -174,11 +214,26 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
     removeLocation(locationToRemove)
   }
 
+  const confirmSettings = () => {
+    Alert.alert("Alert!", "Please restart your app after granting access.", [
+      {
+        text: "I understand",
+        onPress: () => Linking.openSettings(),
+      },
+    ])
+  }
+
   useEffect(() => {
     async function getCurrentLocation() {
       let { status } = await Location.requestForegroundPermissionsAsync()
+      console.log(status)
+
       if (status !== "granted") {
-        Alert.alert("Permission to access location was denied, please allow location permission.")
+        Alert.alert(
+          "Alert!",
+          "Permission to access location was denied, please allow location permission.",
+        )
+        setLocationPermission(false)
         return
       }
 
@@ -195,6 +250,25 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
     setLoading(false)
   }, [])
 
+  if (!locationPermission) {
+    return (
+      <View style={styles.noPermissioncontainer}>
+        <TX
+          preset="heading"
+          text="Please make sure location permission has been granted"
+          size="lg"
+          weight="medium"
+        />
+        <Button
+          preset="filled"
+          text="Allow"
+          onPress={confirmSettings}
+          style={styles.noPermissionButton}
+        />
+      </View>
+    )
+  }
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -209,31 +283,31 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
     )
   }
 
-  if (locations.length === 0) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.EmptyStateCard}>
-          <Text style={styles.emptyStateText}>No suburbs set, please set a suburb!</Text>
-          <LottieView
-            source={require("../../../assets/animations/aura.json")}
-            style={styles.emptyStateLottieAnimation}
-            autoPlay
-            loop
-          />
-          <Button
-            preset="filled"
-            text="Set a suburb"
-            onPress={() =>
-              navigation.navigate("Locations", {
-                coords: { lat: location?.coords.latitude, lng: location?.coords.longitude },
-              })
-            }
-            style={styles.emptyStateButton}
-          />
-        </View>
-      </View>
-    )
-  }
+  // if (locations.length === 0) {
+  //   return (
+  //     <View style={styles.container}>
+  //       <View style={styles.EmptyStateCard}>
+  //         <Text style={styles.emptyStateText}>No suburbs set, please set a suburb!</Text>
+  //         <LottieView
+  //           source={require("../../../assets/animations/aura.json")}
+  //           style={styles.emptyStateLottieAnimation}
+  //           autoPlay
+  //           loop
+  //         />
+  //         <Button
+  //           preset="filled"
+  //           text="Set a suburb"
+  //           onPress={() =>
+  //             navigation.navigate("Locations", {
+  //               coords: { lat: location?.coords.latitude, lng: location?.coords.longitude },
+  //             })
+  //           }
+  //           style={styles.emptyStateButton}
+  //         />
+  //       </View>
+  //     </View>
+  //   )
+  // }
 
   return (
     <View style={styles.container}>
@@ -246,7 +320,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
           placeholderTextColor={colors.palette.neutral500}
         />
       </View>
-      <View style={styles.locationContainer}>
+      {/* <View style={styles.locationContainer}>
         <FlatList
           data={["+", ...locations]}
           horizontal
@@ -284,7 +358,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
             </View>
           )}
         />
-      </View>
+      </View> */}
       <FlatList
         data={filteredReports}
         renderItem={RenderCards}
@@ -385,6 +459,10 @@ const styles = StyleSheet.create({
     height: 250,
     borderRadius: 10,
   },
+  noPermissionButton: {
+    width: "100%",
+    marginTop: 20,
+  },
   button: {
     alignSelf: "center",
     backgroundColor: "#0044cc",
@@ -458,13 +536,19 @@ const styles = StyleSheet.create({
   chipContainer: {
     marginHorizontal: 2,
   },
-  chip: {
-    backgroundColor: colors.palette.primary500,
-    flexDirection: "row",
-  },
-  chipText: {
-    color: "white",
-    fontSize: 14,
+  // chip: {
+  //   backgroundColor: colors.palette.primary500,
+  //   flexDirection: "row",
+  // },
+  // chipText: {
+  //   color: "white",
+  //   fontSize: 14,
+  // },
+  noPermissioncontainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
   },
   plusChipContainer: {
     marginHorizontal: 2,

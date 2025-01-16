@@ -23,5 +23,18 @@ export const ReportStoreModel = types
         self.state = "done"
       }
     })
-    return { getReports }
+    const getProvinceReports = flow(function* (collection: string, date: string, userCoords, province) {
+      self.state = "pending"
+      try {
+        const result = yield firebaseModel.fetchDocumentsByDateAndProvince(collection, date, province) 
+        const sortedReports = sortReports(result, userCoords);
+        self.reports = sortedReports
+        self.state = "done"
+      } catch (error) {
+        console.log(error)
+        self.reports = []
+        self.state = "done"
+      }
+    })
+    return { getReports, getProvinceReports }
   })

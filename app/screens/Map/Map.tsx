@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity, Alert } from "react-native"
+import { StyleSheet, View, TouchableOpacity, Alert, Linking } from "react-native"
 import React, { FC, useCallback, useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
@@ -11,7 +11,8 @@ import { getFormattedDate } from "app/utils/formatDate"
 import { useFocusEffect } from "@react-navigation/native"
 import * as Location from "expo-location"
 import Toast from "react-native-toast-message"
-import { Text } from "app/components"
+import { Button, Text } from "app/components"
+import { fetchLocationFromCoords } from "app/utils/map"
 
 type mapProps = NativeStackScreenProps<MapStackParamList, "Map">
 
@@ -35,7 +36,7 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
   const {
     mapStore: { mapState, setMapState },
     userStore: { locations },
-    reportStore: { getReports, reports },
+    reportStore: { getReports, getProvinceReports, reports },
   } = useStores()
 
   const [coords, setCoords] = useState<{ latitude: number; longitude: number }>({
@@ -53,6 +54,8 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
   const [heatMapData, setHeatMapData] = useState<[]>([])
 
   const [location, setLocation] = useState<Location.LocationObject | null>(null)
+
+  const [locationPermission, setLocationPermission] = useState<boolean>(true)
 
   const pinPoint = () => {
     const state: MapState = mapState === "HeatMap" ? "Pin" : "HeatMap"
@@ -84,9 +87,12 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
   const updateMapData = async () => {
     try {
       let coords = { lat: location?.coords.latitude, lng: location?.coords.longitude }
-      if (locations.length > 0) {
-        await getReports("reports", getFormattedDate(), coords, locations)
-      }
+      let newLocation = await Location.getCurrentPositionAsync({})
+      const province = await fetchLocationFromCoords(
+        newLocation.coords.latitude,
+        newLocation.coords.longitude,
+      )
+      await getProvinceReports("reports", getFormattedDate(), coords, province)
       if (reports) {
         let tempHeatMapArr: [] = []
         reports.forEach((report) => {
@@ -109,7 +115,8 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
     async function getCurrentLocation() {
       let { status } = await Location.requestForegroundPermissionsAsync()
       if (status !== "granted") {
-        Alert.alert("Permission to access location was denied")
+        Alert.alert("Alert!", "Permission to access location was denied")
+        setLocationPermission(false)
         return
       }
 
@@ -124,11 +131,34 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
     getCurrentLocation()
   }, [])
 
+  const confirmSettings = () => {
+    Alert.alert("Alert!", "Please restart your app after granting access.", [
+      {
+        text: "I understand",
+        onPress: () => Linking.openSettings(),
+      },
+    ])
+  }
+
   useFocusEffect(
     useCallback(() => {
       updateMapData()
     }, []),
   )
+
+  if (!locationPermission) {
+    return (
+      <View style={styles.noPermissioncontainer}>
+        <Text
+          preset="heading"
+          text="Please make sure location permission has been granted"
+          size="lg"
+          weight="medium"
+        />
+        <Button preset="filled" text="Allow" onPress={confirmSettings} style={styles.button} />
+      </View>
+    )
+  }
 
   return (
     <View style={styles.container}>
@@ -164,12 +194,7 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
       {mapState === "Pin" && (
         <View style={styles.pinContainer}>
           <View style={styles.pinWrapper}>
-            <Icon 
-              name="map-pin" 
-              type="feather" 
-              color={colors.palette.angry500} 
-              size={40} 
-            />
+            <Icon name="map-pin" type="feather" color={colors.palette.angry500} size={40} />
           </View>
         </View>
       )}
@@ -177,31 +202,13 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
       {mapState === "Pin" && (
         <View style={styles.bottomSheet}>
           <View style={styles.bottomSheetContent}>
-            <Text 
-              text="Set Report Location" 
-              style={styles.bottomSheetTitle}
-            />
-            <Text 
-              text="Move the map to position your pin" 
-              style={styles.bottomSheetSubtitle}
-            />
-            <TouchableOpacity 
-              style={styles.confirmButton}
-              onPress={confirmEvent}
-            >
-              <Text 
-                text="Confirm Location" 
-                style={styles.confirmButtonText}
-              />
+            <Text text="Set Report Location" style={styles.bottomSheetTitle} />
+            <Text text="Move the map to position your pin" style={styles.bottomSheetSubtitle} />
+            <TouchableOpacity style={styles.confirmButton} onPress={confirmEvent}>
+              <Text text="Confirm Location" style={styles.confirmButtonText} />
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.cancelButton}
-              onPress={cancelPinMode}
-            >
-              <Text 
-                text="Cancel" 
-                style={styles.cancelButtonText}
-              />
+            <TouchableOpacity style={styles.cancelButton} onPress={cancelPinMode}>
+              <Text text="Cancel" style={styles.cancelButtonText} />
             </TouchableOpacity>
           </View>
         </View>
@@ -212,9 +219,9 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
           onPress={pinPoint}
           placement="right"
           title="Make a report"
-          icon={{ 
-            name: "warning", 
-            color: "white" 
+          icon={{
+            name: "warning",
+            color: "white",
           }}
           color={colors.palette.angry500}
         />
@@ -235,23 +242,33 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
   },
   pinContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   pinWrapper: {
     marginBottom: 100,
   },
+  noPermissioncontainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+  button: {
+    marginTop: 20,
+    width: "100%",
+  },
   bottomSheet: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 20,
@@ -266,44 +283,44 @@ const styles = StyleSheet.create({
   },
   bottomSheetContent: {
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   bottomSheetTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   bottomSheetSubtitle: {
-    color: 'gray',
+    color: "gray",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   confirmButton: {
     backgroundColor: colors.palette.angry500,
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 10,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
     marginBottom: 10,
   },
   confirmButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
     fontSize: 16,
   },
   cancelButton: {
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 10,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: colors.palette.angry500,
   },
   cancelButtonText: {
     color: colors.palette.angry500,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
   },
 })

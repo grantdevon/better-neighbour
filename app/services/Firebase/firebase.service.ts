@@ -10,6 +10,8 @@ export const firebaseModel = {
   fetchDoc: (collection: string, docId: string) => fetchDocument(collection, docId),
   fetchDocumentsByDateAndLocations: (collection: string, date: string, locations: any) =>
     fetchDocumentsByDateAndLocations(collection, date, locations),
+  fetchDocumentsByDateAndProvince: (collection: string, date: string, province: string) =>
+    fetchDocumentsByDateAndProvince(collection, date, province),
   sendDoc: (collection: string, docId: string, data: any) => sendDocument(collection, docId, data),
   createDoc: (collection: string, data: any) => createDocument(collection, data),
   updateDoc: (collection: string, docId: string, data: any) =>
@@ -32,10 +34,10 @@ const deleteUserAccount = () => {
   auth()
     .currentUser?.delete()
     .then((res) => {
-      Alert.alert("", "Your account has been successfuly deleted!")
+      Alert.alert("Alert!", "Your account has been successfuly deleted!")
     })
     .catch((err) => {
-      Alert.alert("", "There was an issue deleting your account. Please try again later.")
+      Alert.alert("Alert!", "There was an issue deleting your account. Please try again later.")
     })
 }
 
@@ -76,6 +78,34 @@ const fetchDocument = async (collection: string, docId: string): Promise<any> =>
 
 const forgotPassword = async (email: string) => {
   await auth().sendPasswordResetEmail(email)
+}
+
+const fetchDocumentsByDateAndProvince = async (
+  collection: string,
+  dateValue: string,
+  province: string,
+): Promise<any[]> => {
+  try {
+    if (!province || province.length === 0) {
+      throw new Error("Province is empty. Cannot perform query with '==' filter.")
+    }
+
+    const querySnapshot = await firestore()
+      .collection(collection)
+      .where("date", "==", dateValue)
+      .where("province", "==", province.trim())
+      .get()
+
+    if (!querySnapshot.empty) {
+      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+    } else {
+      console.log("No matching documents found.")
+      return []
+    }
+  } catch (err) {
+    console.error("fetchDocumentsByDateAndProvince Error: ", err)
+    throw new Error(`fetchDocumentsByDateAndProvince Error: ${err.message}`)
+  }
 }
 
 const fetchDocumentsByDateAndLocations = async (

@@ -66,7 +66,7 @@ export const Settings: FC<settingsProps> = observer(({ navigation }) => {
   const [loading, setLoading] = useState<boolean>(true)
 
   const actionDisabledAlert = () => {
-    Alert.alert("", "This function is disabled during beta testing.")
+    Alert.alert("Alert!", "This function is disabled during beta testing.")
   }
 
   const shareApplication = async () => {

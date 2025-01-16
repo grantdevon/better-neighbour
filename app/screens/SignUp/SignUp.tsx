@@ -115,7 +115,7 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
     const currentQuestion = signUpObject[currentIndex]
     if (!currentQuestion.validate()) {
       if (currentQuestion.placeholder === "Email") {
-        Alert.alert("Please enter a valid email address.")
+        Alert.alert("Alert!","Please enter a valid email address.")
       } else if (currentQuestion.placeholder === "Password") {
         const password = currentQuestion.value
         const issues: string[] = []
@@ -139,9 +139,9 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
         const errorMessage = `Password must:\n- ${issues.join("\n- ")}`
         Alert.alert("Invalid Password", errorMessage)
       } else if (currentQuestion.placeholder === "Confirm password") {
-        Alert.alert("Passwords do not match.")
+        Alert.alert("Alert!","Passwords do not match.")
       } else {
-        Alert.alert(`Please enter your ${currentQuestion.placeholder.toLowerCase()}.`)
+        Alert.alert("Alert!", `Please enter your ${currentQuestion.placeholder.toLowerCase()}.`)
       }
       return false
     }

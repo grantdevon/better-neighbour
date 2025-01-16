@@ -35,18 +35,18 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     if (!email) {
-      Alert.alert("", "Please enter an email address.")
+      Alert.alert("Alert!", "Please enter an email address.")
       return
     }
 
     if (!emailRegex.test(email)) {
-      Alert.alert("", "Please enter a valid email address.")
+      Alert.alert("Alert!", "Please enter a valid email address.")
       return
     }
 
     try {
       await firebaseModel.forgotPassword(email)
-      Alert.alert("", "Password reset link sent to your email.")
+      Alert.alert("Alert!", "Password reset link sent to your email.")
     } catch (error) {
       // Handle specific Firebase error messages
       const errorMessage = error instanceof Error ? error.message : "An error occurred"
