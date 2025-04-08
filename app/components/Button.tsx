@@ -9,6 +9,7 @@ import {
 } from "react-native"
 import { colors, spacing, typography } from "../theme"
 import { Text, TextProps } from "./Text"
+import { uiColors } from "app/utils/uiColors"
 
 type Presets = keyof typeof $viewPresets
 
@@ -174,7 +175,7 @@ export function Button(props: ButtonProps) {
 
 const $baseViewStyle: ViewStyle = {
   minHeight: 56,
-  borderRadius: 4,
+  borderRadius: 25,
   justifyContent: "center",
   alignItems: "center",
   flexDirection: "row",
@@ -191,6 +192,7 @@ const $baseTextStyle: TextStyle = {
   flexShrink: 1,
   flexGrow: 0,
   zIndex: 2,
+  color: "#FFFFFF",
 }
 
 const $rightAccessoryStyle: ViewStyle = { marginStart: spacing.xs, zIndex: 1 }
@@ -201,33 +203,46 @@ const $viewPresets = {
     $baseViewStyle,
     {
       borderWidth: 1,
-      borderColor: colors.palette.neutral400,
-      backgroundColor: colors.palette.neutral100,
+      borderColor: uiColors.primary,
+      backgroundColor: uiColors.primary,
+      borderRadius: 25,
     },
   ] as StyleProp<ViewStyle>,
 
-  filled: [$baseViewStyle, { backgroundColor: colors.palette.neutral300 }] as StyleProp<ViewStyle>,
+  filled: [$baseViewStyle, { backgroundColor: uiColors.primary }] as StyleProp<ViewStyle>,
 
   reversed: [
     $baseViewStyle,
     { backgroundColor: colors.palette.neutral800 },
+  ] as StyleProp<ViewStyle>,
+  outline: [
+    $baseViewStyle,
+    {
+      borderWidth: 1,
+      borderColor: uiColors.primary,
+      backgroundColor: "#FFFFFF",
+      borderRadius: 25,
+    },
   ] as StyleProp<ViewStyle>,
 }
 
 const $textPresets: Record<Presets, StyleProp<TextStyle>> = {
   default: $baseTextStyle,
   filled: $baseTextStyle,
-  reversed: [$baseTextStyle, { color: colors.palette.neutral100 }],
+  reversed: [$baseTextStyle, { color: "colors.palette.neutral100" }],
+  outline: [$baseTextStyle, { color: uiColors.primary }],
 }
 
 const $pressedViewPresets: Record<Presets, StyleProp<ViewStyle>> = {
   default: { backgroundColor: colors.palette.neutral200 },
   filled: { backgroundColor: colors.palette.neutral400 },
   reversed: { backgroundColor: colors.palette.neutral700 },
+  outline: [$baseTextStyle, { color: uiColors.primary }],
 }
 
 const $pressedTextPresets: Record<Presets, StyleProp<TextStyle>> = {
   default: { opacity: 0.9 },
   filled: { opacity: 0.9 },
   reversed: { opacity: 0.9 },
+  outline: [$baseTextStyle, { color: uiColors.primary }],
 }

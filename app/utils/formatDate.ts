@@ -109,33 +109,61 @@ const sortReportsByTimeDescending = (reports) => {
 //   })
 // }
 
-export const sortReports = (reports, userCoords, options = {}) => {
-  const {
-    timeWeight = 0.5,  // Default weight for time (0-1 range)
-    distanceWeight = 0.5  // Default weight for distance (0-1 range)
-  } = options;
+// export const sortReports = (reports, userCoords, options = {}) => {
+//   const {
+//     timeWeight = 0.5,  // Default weight for time (0-1 range)
+//     distanceWeight = 0.5  // Default weight for distance (0-1 range)
+//   } = options;
 
-  return reports.sort((a, b) => {
-    // Parse times
-    const timeA = dayjs(`1970-01-01 ${a.time}`, "YYYY-MM-DD HH:mm:ss [GMT]Z");
-    const timeB = dayjs(`1970-01-01 ${b.time}`, "YYYY-MM-DD HH:mm:ss [GMT]Z");
+//   return reports.sort((a, b) => {
+//     // Parse times
+//     const timeA = dayjs(`1970-01-01 ${a.time}`, "YYYY-MM-DD HH:mm:ss [GMT]Z");
+//     const timeB = dayjs(`1970-01-01 ${b.time}`, "YYYY-MM-DD HH:mm:ss [GMT]Z");
 
-    // Calculate time difference (most recent first)
-    let timeDiff = 0;
-    if (timeA.isValid() && timeB.isValid()) {
-      timeDiff = timeB.valueOf() - timeA.valueOf();
-    }
+//     // Calculate time difference (most recent first)
+//     let timeDiff = 0;
+//     if (timeA.isValid() && timeB.isValid()) {
+//       timeDiff = timeB.valueOf() - timeA.valueOf();
+//     }
 
-    // Calculate distance
-    const distanceA = haversine(userCoords, a.coords);
-    const distanceB = haversine(userCoords, b.coords);
-    const distanceDiff = distanceA - distanceB;
+//     // Calculate distance
+//     const distanceA = haversine(userCoords, a.coords);
+//     const distanceB = haversine(userCoords, b.coords);
+//     const distanceDiff = distanceA - distanceB;
 
-    // Normalize and combine time and distance
-    const normalizedTimeDiff = timeDiff / (24 * 60 * 60 * 1000);  // Convert to days
-    const normalizedDistanceDiff = distanceDiff / 1000;  // Convert to kilometers
+//     // Normalize and combine time and distance
+//     const normalizedTimeDiff = timeDiff / (24 * 60 * 60 * 1000);  // Convert to days
+//     const normalizedDistanceDiff = distanceDiff / 1000;  // Convert to kilometers
 
-    // Weighted combination of time and distance
-    return (timeWeight * normalizedTimeDiff) + (distanceWeight * normalizedDistanceDiff);
+//     // Weighted combination of time and distance
+//     return (timeWeight * normalizedTimeDiff) + (distanceWeight * normalizedDistanceDiff);
+//   });
+// };
+
+export const sortReports = (reports: any[]) => {
+  const currentDate = new Date();
+  const currentDateString = currentDate.toISOString().split('T')[0]; // Get today's date in "yyyy-mm-dd" format
+
+  // Parse date string in format "yy-mm-dd" to a comparable value
+  const parseReportDate = (dateString: string) => {
+    const [yearPart, monthPart, dayPart] = dateString.split('-');
+    // Convert to a sortable string in "yyyy-mm-dd" format
+    return `20${yearPart}-${monthPart}-${dayPart}`;
+  };
+
+  return reports.slice().sort((a, b) => {
+    const aDate = parseReportDate(a.date);
+    const bDate = parseReportDate(b.date);
+
+    // Check if the date is today
+    const isAToday = aDate === currentDateString;
+    const isBToday = bDate === currentDateString;
+
+    // If one is today and the other isn't, prioritize today's report
+    if (isAToday && !isBToday) return -1;
+    if (!isAToday && isBToday) return 1;
+
+    // If both are today or both are not today, sort by date in descending order
+    return bDate.localeCompare(aDate);
   });
 };

@@ -1,4 +1,4 @@
-import { Button } from "app/components"
+import { Button, Screen } from "app/components"
 import { useStores } from "app/models"
 import { firebaseModel } from "app/services/Firebase/firebase.service"
 import { colors } from "app/theme"
@@ -14,12 +14,29 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native"
 import { Dropdown } from "react-native-element-dropdown"
 import { TextInput } from "react-native-gesture-handler"
+import Icon from "react-native-vector-icons/Ionicons"
+import auth from "@react-native-firebase/auth"
+
 // import analytics from "@react-native-firebase/analytics"
 
-type ReportType = "Suspicious Activity" | "Crime" | "Be Alert"
+type ReportType =
+  | "Power Outage"
+  | "No Water"
+  | "Potholes"
+  | "Internet Down"
+  | "Stray Pet"
+  | "Street Lights"
+  | "Traffic Lights"
+  | "Strange Car"
+  | "Odd Behavior"
+  | "Crime"
+  | "Weird Activity"
+  | "Be Alert"
+  | "Suspicious Activity"
 
 interface IReportType {
   label: ReportType
@@ -59,7 +76,7 @@ export const Report: FC = observer(({ navigation, route }) => {
 
   const {
     mapStore: { setMapState },
-    userStore: { user, locations },
+    userStore: { user, locations, getUser },
     reportStore: { getReports },
   } = useStores()
 
@@ -80,19 +97,20 @@ export const Report: FC = observer(({ navigation, route }) => {
   const [isLocationAutoDetected, setIsLocationAutoDetected] = useState<boolean>(false)
 
   const dropDownData: IReportType[] = [
-    { label: "Suspicious Activity", value: "Suspicious Activity" },
+    { label: "Power Outage", value: "Power Outage" },
+    { label: "No Water", value: "No Water" },
+    { label: "Potholes", value: "Potholes" },
+    { label: "Internet Down", value: "Internet Down" },
+    { label: "Stray Pet", value: "Stray Pet" },
+    { label: "Street Lights", value: "Street Lights" },
+    { label: "Traffic Lights", value: "Traffic Lights" },
+    { label: "Strange Car", value: "Strange Car" },
+    { label: "Odd Behavior", value: "Odd Behavior" },
     { label: "Crime", value: "Crime" },
+    { label: "Weird Activity", value: "Weird Activity" },
     { label: "Be Alert", value: "Be Alert" },
+    { label: "Suspicious Activity", value: "Suspicious Activity" },
   ]
-
-  useHeader(
-    {
-      title: "Make a report",
-      leftIcon: "back",
-      onLeftPress: () => navigation.navigate("Map"),
-    },
-    [],
-  )
 
   /**
    * Fetch location using Nominatim reverse geocoding
@@ -110,10 +128,9 @@ export const Report: FC = observer(({ navigation, route }) => {
 
       const data: NominatimResponse = await response.json()
 
-      console.log('====================================');
-      console.log(data);
-      console.log('====================================');
-
+      console.log("====================================")
+      console.log(data)
+      console.log("====================================")
 
       // Prioritize suburb, then city_district, then county
       const location =
@@ -169,6 +186,12 @@ export const Report: FC = observer(({ navigation, route }) => {
 
   const makeReport = async () => {
     if (validated()) {
+      const currentUser = auth().currentUser
+      if (!currentUser?.uid) {
+        Alert.alert("Error", "User not found. Please sign in again.")
+        return
+      }
+      await getUser(currentUser.uid)
       const data: IReport = {
         userId: user.id,
         name: user.firstName,
@@ -248,7 +271,10 @@ export const Report: FC = observer(({ navigation, route }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <Screen style={styles.container} safeAreaEdges={["top"]}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Icon name="arrow-back" size={24} color={colors.palette.neutral700} />
+      </TouchableOpacity>
       <ScrollView>
         <View>
           <Text style={styles.inputLabel}>Report Type</Text>
@@ -301,7 +327,7 @@ export const Report: FC = observer(({ navigation, route }) => {
           />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </Screen>
   )
 })
 
@@ -361,5 +387,19 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
+  },
+  backButton: {
+    width: 45,
+    height: 45,
+    marginTop: 15,
+    zIndex: 2,
+    backgroundColor: colors.palette.neutral100,
+    padding: 10,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
 })

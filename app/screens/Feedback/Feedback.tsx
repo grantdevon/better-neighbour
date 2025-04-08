@@ -2,19 +2,21 @@ import { Button, Screen, Text } from "app/components"
 import { useStores } from "app/models"
 import { firebaseModel } from "app/services/Firebase/firebase.service"
 import { colors } from "app/theme"
-import { useHeader } from "app/utils/useHeader"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
-import { ActivityIndicator, SafeAreaView, StyleSheet, TextInput, View } from "react-native"
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native"
+import Icon from "react-native-vector-icons/Ionicons"
+
 // import analytics from "@react-native-firebase/analytics"
 
 export const Feedback: FC = observer(({ navigation }) => {
-  useHeader({
-    title: "Feedback ❤️",
-    leftIcon: "back",
-    onLeftPress: () => navigation.navigate("Settings"),
-  })
-
   const {
     userStore: { user },
   } = useStores()
@@ -75,13 +77,17 @@ export const Feedback: FC = observer(({ navigation }) => {
   }
 
   return (
-    <Screen safeAreaEdges={["bottom"]}>
+    <Screen safeAreaEdges={["top"]}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Icon name="arrow-back" size={24} color={colors.palette.neutral700} />
+      </TouchableOpacity>
+
       <View style={styles.container}>
         <Text
           text="Help us improve the app by providing critical feedback."
           preset="heading"
-          weight="medium"
-          size="xl"
+          size="lg"
+          style={{ fontSize: 15 }}
         />
         <TextInput
           maxLength={250}
@@ -114,5 +120,19 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 20,
     borderRadius: 10,
+  },
+  backButton: {
+    width: 45,
+    height: 45,
+    marginHorizontal: 15,
+    zIndex: 2,
+    backgroundColor: colors.palette.neutral100,
+    padding: 10,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
 })

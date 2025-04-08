@@ -1,12 +1,23 @@
-import { ActivityIndicator, Alert, SafeAreaView, StyleSheet, TextInput, View } from "react-native"
+import {
+  ActivityIndicator,
+  Alert,
+  SafeAreaView,
+  StyleSheet,
+  TextInput,
+  View,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native"
 import React, { FC, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { AuthStackParamList } from "app/navigators"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { colors } from "app/theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
-import { Button, Screen, Text } from "app/components"
+import { AutoImage, Button, Screen, Text } from "app/components"
 import { firebaseModel } from "app/services/Firebase/firebase.service"
+import { uiColors } from "app/utils/uiColors"
 
 type LoginProps = NativeStackScreenProps<AuthStackParamList, "Login">
 
@@ -65,15 +76,30 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
           },
         ]}
       >
-        <ActivityIndicator size={50} />
+        <ActivityIndicator size={50} color={uiColors.primary}/>
         <Text text="Please wait" preset="subheading" />
       </SafeAreaView>
     )
 
   return (
-    <Screen safeAreaEdges={["top", "bottom"]} style={styles.container}>
-      <View style={styles.mainContent}>
-        <Text text="Welcome" preset="heading" size="xl" style={{ paddingLeft: 20 }} />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <View>
+        <Image
+          source={require("../../../assets/images/logo5.png")}
+          style={styles.logo}
+          resizeMode={"cover"}
+        />
+      </View>
+      <View>
+        <Text
+          text="Welcome"
+          preset="heading"
+          size="xl"
+          style={{ paddingLeft: 20, fontWeight: "700" }}
+        />
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.textInput}
@@ -91,36 +117,41 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
             onChangeText={setPassword}
           />
         </View>
-        <Button text="Login" preset="filled" style={styles.button} onPress={signInUser} />
         <TouchableOpacity style={styles.forgotPassword} onPress={handleForgotPassword}>
-          <Text preset="subheading" text="forgot password?" size="sm" />
+          <Text
+            preset="subheading"
+            text="forgot password?"
+            size="xs"
+            style={{ color: uiColors.primary }}
+          />
+        </TouchableOpacity>
+        <Button text="Login" preset="filled" style={styles.button} onPress={signInUser} />
+        <TouchableOpacity
+          style={styles.signUpContainer}
+          onPress={() => navigation.navigate("SignUp")}
+        >
+          <Text text="Not a member?" preset="subheading" size="sm" />
+          <Text
+            text="Register now"
+            preset="subheading"
+            size="sm"
+            style={[styles.signUpText, { color: uiColors.primary, paddingLeft: 7 }]}
+          />
         </TouchableOpacity>
       </View>
-
-      <TouchableOpacity
-        style={styles.signUpContainer}
-        onPress={() => navigation.navigate("SignUp")}
-      >
-        <Text text="Don't have an account?" preset="subheading" size="sm" />
-        <Text
-          text="Sign up"
-          preset="subheading"
-          size="sm"
-          style={[styles.signUpText, { color: colors.palette.primary600, paddingLeft: 7 }]}
-        />
-      </TouchableOpacity>
-    </Screen>
+    </KeyboardAvoidingView>
   )
 })
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "space-between",
+    justifyContent: "space-evenly",
+    backgroundColor: "#FFFFFF",
   },
   signUpContainer: {
     flexDirection: "row",
-    marginTop: 50,
+    marginTop: 15,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -128,7 +159,7 @@ const styles = StyleSheet.create({
   baseTextColor: { color: colors.text },
   title: { color: colors.palette.neutral300, fontSize: 30, textAlign: "center", marginBottom: 50 },
   mainContent: { marginTop: 30 },
-  inputContainer: { marginTop: 30 },
+  inputContainer: { marginTop: 10 },
   textInput: {
     backgroundColor: colors.palette.neutral100,
     marginVertical: 10,
@@ -136,12 +167,21 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 10,
     borderRadius: 7,
+    borderColor: "#C5C6CC",
+    borderWidth: 1,
   },
   button: {
-    marginVertical: 30,
+    marginTop: 20,
     marginHorizontal: 20,
   },
   forgotPassword: {
-    alignItems: "center",
+    // alignItems: "center",
+    paddingLeft: 20,
+  },
+  logo: {
+    width: "100%",
+    height: 70,
+    alignSelf: "center",
+    objectFit: "contain",
   },
 })

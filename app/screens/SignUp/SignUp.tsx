@@ -6,16 +6,22 @@ import {
   TouchableOpacity,
   View,
   TextInput,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native"
-import React, { FC, useState } from "react"
+import React, { FC, useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
 import { AuthStackParamList } from "app/navigators"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
-import { useHeader } from "app/utils/useHeader"
 import { colors } from "app/theme"
 import { Button } from "app/components"
 import { firebaseModel } from "app/services/Firebase/firebase.service"
-import { Screen, Text } from "app/components"
+import { Text } from "app/components"
+import { uiColors } from "app/utils/uiColors"
+import Ionicons from "react-native-vector-icons/Ionicons"
 
 type SignUpProps = NativeStackScreenProps<AuthStackParamList, "SignUp">
 
@@ -28,30 +34,7 @@ interface User {
   verified: boolean
 }
 
-interface SignUpQuestionProps {
-  question: string
-  description?: string
-  placeholder: string
-  value: string
-  setter: (value: string) => void
-  validate: () => boolean
-  isPassword: boolean
-}
-
-type Command = "next" | "back"
-
 export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
-  useHeader(
-    {
-      title: "Create an account",
-      leftIcon: "back",
-      onLeftPress: () => navigation.navigate("Login"),
-    },
-    [],
-  )
-
-  const [currentIndex, setCurrentIndex] = useState<number>(0)
-
   const [userDetails, setUser] = useState<User>({
     firstName: "",
     lastName: "",
@@ -62,91 +45,33 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
   })
   const [confirmPassword, setConfirmPassword] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
+  const [errors, setErrors] = useState({
+    firstName: false,
+    lastName: false,
+    email: false,
+    password: false,
+    confirmPassword: false,
+  })
+  const [focusedInput, setFocusedInput] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
+  const [keyboardVisible, setKeyboardVisible] = useState<boolean>(false)
 
-  const signUpObject: SignUpQuestionProps[] = [
-    {
-      question: "Tell us your first name",
-      description: "Welcome!",
-      placeholder: "First name",
-      value: userDetails.firstName,
-      setter: (value) => setUser({ ...userDetails, firstName: value }),
-      isPassword: false,
-      validate: () => userDetails.firstName.trim() !== "",
-    },
-    {
-      question: "Enter your last name",
-      description: `Nice to meet you ${userDetails.firstName}!`,
-      placeholder: "Last name",
-      value: userDetails.lastName,
-      setter: (value) => setUser({ ...userDetails, lastName: value }),
-      isPassword: false,
-      validate: () => userDetails.lastName.trim() !== "",
-    },
-    {
-      question: "Enter your email",
-      description: `Got it ${userDetails.firstName + " " + userDetails.lastName}🫡`,
-      placeholder: "Email",
-      value: userDetails.email,
-      setter: (value) => setUser({ ...userDetails, email: value }),
-      isPassword: false,
-      validate: () => validateEmail(userDetails.email),
-    },
-    {
-      question: "Enter your password",
-      description: `Great! Now time for the password. I wont look 🙈`,
-      placeholder: "Password",
-      value: userDetails.password,
-      setter: (value) => setUser({ ...userDetails, password: value }),
-      isPassword: true,
-      validate: () => validatePassword(userDetails.password),
-    },
-    {
-      question: "Confirm your password",
-      description: "One last step!",
-      placeholder: "Confirm password",
-      value: confirmPassword,
-      setter: setConfirmPassword,
-      isPassword: true,
-      validate: () => userDetails.password === confirmPassword,
-    },
-  ]
+  // Keyboard listeners
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardVisible(true)
+    })
+    const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardVisible(false)
+    })
 
-  const validateAnswer = (): boolean => {
-    const currentQuestion = signUpObject[currentIndex]
-    if (!currentQuestion.validate()) {
-      if (currentQuestion.placeholder === "Email") {
-        Alert.alert("Alert!","Please enter a valid email address.")
-      } else if (currentQuestion.placeholder === "Password") {
-        const password = currentQuestion.value
-        const issues: string[] = []
-
-        if (password.length < 6) {
-          issues.push("be at least 6 characters long")
-        }
-        if (!/[A-Z]/.test(password)) {
-          issues.push("contain an uppercase letter")
-        }
-        if (!/[a-z]/.test(password)) {
-          issues.push("contain a lowercase letter")
-        }
-        if (!/\d/.test(password)) {
-          issues.push("contain a number")
-        }
-        if (!/[!@#$%^&*(),.?":{}|<>_\[\]\-+=;'/`~|\\]/.test(password)) {
-          issues.push("contain a special character. for example: # @ ! $ %")
-        }
-
-        const errorMessage = `Password must:\n- ${issues.join("\n- ")}`
-        Alert.alert("Invalid Password", errorMessage)
-      } else if (currentQuestion.placeholder === "Confirm password") {
-        Alert.alert("Alert!","Passwords do not match.")
-      } else {
-        Alert.alert("Alert!", `Please enter your ${currentQuestion.placeholder.toLowerCase()}.`)
-      }
-      return false
+    // Clean up listeners when component unmounts
+    return () => {
+      keyboardDidShowListener.remove()
+      keyboardDidHideListener.remove()
     }
-    return true
-  }
+  }, [])
 
   const validateEmail = (email: string): boolean => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -163,59 +88,87 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
     return minLength && hasUppercase && hasLowercase && hasNumber && hasSpecialChar
   }
 
+  const validateForm = (): boolean => {
+    const newErrors = {
+      firstName: !userDetails.firstName.trim(),
+      lastName: !userDetails.lastName.trim(),
+      email: !validateEmail(userDetails.email),
+      password: !validatePassword(userDetails.password),
+      confirmPassword: confirmPassword !== userDetails.password,
+    }
+
+    setErrors(newErrors)
+
+    if (newErrors.firstName) {
+      Alert.alert("Alert!", "Please enter your first name.")
+      return false
+    }
+
+    if (newErrors.lastName) {
+      Alert.alert("Alert!", "Please enter your last name.")
+      return false
+    }
+
+    if (newErrors.email) {
+      Alert.alert("Alert!", "Please enter a valid email address.")
+      return false
+    }
+
+    if (newErrors.password) {
+      const password = userDetails.password
+      const issues: string[] = []
+
+      if (password.length < 6) {
+        issues.push("be at least 6 characters long")
+      }
+      if (!/[A-Z]/.test(password)) {
+        issues.push("contain an uppercase letter")
+      }
+      if (!/[a-z]/.test(password)) {
+        issues.push("contain a lowercase letter")
+      }
+      if (!/\d/.test(password)) {
+        issues.push("contain a number")
+      }
+      if (!/[!@#$%^&*(),.?":{}|<>_\[\]\-+=;'/`~|\\]/.test(password)) {
+        issues.push("contain a special character. for example: # @ ! $ %")
+      }
+
+      const errorMessage = `Password must:\n- ${issues.join("\n- ")}`
+      Alert.alert("Invalid Password", errorMessage)
+      return false
+    }
+
+    if (newErrors.confirmPassword) {
+      Alert.alert("Alert!", "Passwords do not match.")
+      return false
+    }
+
+    return true
+  }
+
   const createUser = async () => {
+    if (!validateForm()) return
+
     setLoading(true)
     firebaseModel
       .signUp(userDetails)
       .then((res) => setLoading(false))
-      .catch((err) => setLoading(false))
-  }
-  const updateQuestion = (command: Command) => {
-    if (command === "next") {
-      if (!validateAnswer()) return
-      if (currentIndex === signUpObject.length - 1) {
-        console.log(userDetails)
-        createUser()
-        return
-      }
-      setCurrentIndex(currentIndex + 1)
-    } else if (command === "back") {
-      setCurrentIndex(currentIndex - 1)
-    }
+      .catch((err) => {
+        Alert.alert("Error", err.message || "An error occurred during sign up")
+        setLoading(false)
+      })
   }
 
-  const renderFormQuestion = (index: number) => {
-    const signUpQuestion: SignUpQuestionProps = signUpObject[index]
-    return (
-      <View>
-        {signUpQuestion && (
-          <View style={styles.formContainer}>
-            <View style={{ paddingVertical: 10 }}>
-              {signUpQuestion.description && (
-                <Text
-                  text={signUpQuestion.description}
-                  preset="heading"
-                  size="xl"
-                  style={{ color: colors.palette.primary600 }}
-                />
-              )}
-            </View>
+  const getInputBorderColor = (inputName: string) => {
+    if (errors[inputName]) return colors.error
+    if (focusedInput === inputName) return uiColors.primary
+    return colors.palette.neutral300
+  }
 
-            <Text text={signUpQuestion.question} preset="heading" size="md" />
-            <TextInput
-              style={styles.formInput}
-              value={signUpQuestion.value}
-              placeholder={signUpQuestion.placeholder}
-              keyboardType="default"
-              onChangeText={signUpQuestion.setter}
-              placeholderTextColor={colors.palette.neutral300}
-              inputMode={signUpQuestion.placeholder === "Email" ? "email" : "text"}
-              autoCapitalize={"none"}
-            />
-          </View>
-        )}
-      </View>
-    )
+  // Dismiss keyboard when tapping outside of text inputs
+  const dismissKeyboard = () => {
+    Keyboard.dismiss()
   }
 
   if (loading)
@@ -228,100 +181,228 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
           backgroundColor: colors.palette.neutral200,
         }}
       >
-        <ActivityIndicator size={50} />
-        <Text style={styles.formDescription} text={"Please wait..."} preset="heading" />
+        <ActivityIndicator size={50} color={uiColors.primary} />
+        <Text
+          style={{ color: uiColors.primary, textAlign: "center" }}
+          text={"Please wait..."}
+          preset="heading"
+        />
       </SafeAreaView>
     )
 
   return (
-    <View style={styles.container}>
-      <View>
-        <View style={styles.indicatorContainer}>
-          {signUpObject.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.indicator,
-                index === currentIndex && { backgroundColor: colors.palette.neutral800 },
-              ]}
-            />
-          ))}
-        </View>
-        {renderFormQuestion(currentIndex)}
-      </View>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+      >
+        <TouchableWithoutFeedback onPress={dismissKeyboard}>
+          <View style={{ flex: 1 }}>
+            <ScrollView
+              contentContainerStyle={{ flexGrow: 1 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              <View>
+                <Text style={styles.formTitle}>Sign Up</Text>
+                <Text style={styles.formDescription}>Create an account to get started</Text>
 
-      <View style={styles.buttonContainer}>
-        {currentIndex !== 0 && (
-          <Button
-            preset="filled"
-            text="Back"
-            style={styles.button}
-            onPress={() => updateQuestion("back")}
-          />
-        )}
-        <Button
-          preset="filled"
-          text={currentIndex === signUpObject.length - 1 ? "Submit" : "Next"}
-          style={styles.button}
-          onPress={() => updateQuestion("next")}
-        />
-      </View>
-    </View>
+                <View style={{ marginTop: 7 }}>
+                  <Text style={styles.formLabel}>First Name</Text>
+                  <TextInput
+                    value={userDetails.firstName}
+                    onChangeText={(text) => {
+                      setUser({ ...userDetails, firstName: text })
+                      if (text.trim()) setErrors({ ...errors, firstName: false })
+                    }}
+                    placeholder="Enter your first name"
+                    style={[styles.input, { borderColor: getInputBorderColor("firstName") }]}
+                    onFocus={() => setFocusedInput("firstName")}
+                    onBlur={() => {
+                      setFocusedInput(null)
+                      setErrors({ ...errors, firstName: !userDetails.firstName.trim() })
+                    }}
+                  />
+
+                  <Text style={styles.formLabel}>Last Name</Text>
+                  <TextInput
+                    value={userDetails.lastName}
+                    onChangeText={(text) => {
+                      setUser({ ...userDetails, lastName: text })
+                      if (text.trim()) setErrors({ ...errors, lastName: false })
+                    }}
+                    placeholder="Enter your last name"
+                    style={[styles.input, { borderColor: getInputBorderColor("lastName") }]}
+                    onFocus={() => setFocusedInput("lastName")}
+                    onBlur={() => {
+                      setFocusedInput(null)
+                      setErrors({ ...errors, lastName: !userDetails.lastName.trim() })
+                    }}
+                  />
+
+                  <Text style={styles.formLabel}>Email</Text>
+                  <TextInput
+                    value={userDetails.email}
+                    onChangeText={(text) => {
+                      setUser({ ...userDetails, email: text })
+                      if (validateEmail(text)) setErrors({ ...errors, email: false })
+                    }}
+                    placeholder="Enter your email"
+                    style={[styles.input, { borderColor: getInputBorderColor("email") }]}
+                    onFocus={() => setFocusedInput("email")}
+                    onBlur={() => {
+                      setFocusedInput(null)
+                      setErrors({ ...errors, email: !validateEmail(userDetails.email) })
+                    }}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+
+                  <Text style={styles.formLabel}>Password</Text>
+                  <View style={styles.passwordContainer}>
+                    <TextInput
+                      value={userDetails.password}
+                      onChangeText={(text) => {
+                        setUser({ ...userDetails, password: text })
+                        if (validatePassword(text)) setErrors({ ...errors, password: false })
+                      }}
+                      placeholder="Enter your password"
+                      style={[
+                        styles.passwordInput,
+                        { borderColor: getInputBorderColor("password") },
+                      ]}
+                      onFocus={() => setFocusedInput("password")}
+                      onBlur={() => {
+                        setFocusedInput(null)
+                        setErrors({ ...errors, password: !validatePassword(userDetails.password) })
+                      }}
+                      secureTextEntry={!showPassword}
+                      autoCapitalize="none"
+                    />
+                    <TouchableOpacity
+                      style={styles.passwordToggleButton}
+                      onPress={() => setShowPassword(!showPassword)}
+                    >
+                      <Ionicons
+                        name={showPassword ? "eye-off-outline" : "eye-outline"}
+                        size={24}
+                        color={uiColors.primary}
+                      />
+                    </TouchableOpacity>
+                  </View>
+
+                  <Text style={styles.formLabel}>Confirm Password</Text>
+                  <View style={styles.passwordContainer}>
+                    <TextInput
+                      value={confirmPassword}
+                      onChangeText={(text) => {
+                        setConfirmPassword(text)
+                        if (text === userDetails.password)
+                          setErrors({ ...errors, confirmPassword: false })
+                      }}
+                      placeholder="Confirm your password"
+                      style={[
+                        styles.passwordInput,
+                        { borderColor: getInputBorderColor("confirmPassword") },
+                      ]}
+                      onFocus={() => setFocusedInput("confirmPassword")}
+                      onBlur={() => {
+                        setFocusedInput(null)
+                        setErrors({
+                          ...errors,
+                          confirmPassword: confirmPassword !== userDetails.password,
+                        })
+                      }}
+                      secureTextEntry={!showConfirmPassword}
+                      autoCapitalize="none"
+                    />
+                    <TouchableOpacity
+                      style={styles.passwordToggleButton}
+                      onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      <Ionicons
+                        name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                        size={24}
+                        color={uiColors.primary}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+
+              {/* Push content up when keyboard is visible */}
+              <View style={{ flex: 1, minHeight: keyboardVisible ? 100 : 20 }} />
+
+              <View style={styles.buttonContainer}>
+                <Button text="Sign Up" onPress={createUser} style={{ marginTop: 10 }} />
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Login")}
+                  style={{
+                    flexDirection: "row",
+                    alignSelf: "center",
+                    marginTop: 10,
+                    marginBottom: 10,
+                  }}
+                >
+                  <Text>Already have an account? </Text>
+                  <Text style={{ color: uiColors.primary }}> Login</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   )
 })
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.palette.neutral200,
-    justifyContent: "space-between",
-  },
-  indicatorContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-  },
-  indicator: {
-    flex: 1,
-    height: 10,
-    backgroundColor: colors.palette.secondary200,
-    marginHorizontal: 2,
-    borderRadius: 5,
-  },
-  buttonContainer: {
-    justifyContent: "space-around",
-    flexDirection: "row",
-    paddingBottom: 50,
-    paddingHorizontal: 5,
-  },
-  button: {
-    flex: 1,
-    marginLeft: 15,
-    marginRight: 15,
-  },
-  formContainer: {
-    marginTop: 15,
     marginHorizontal: 20,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: colors.palette.neutral300,
+    borderRadius: 10,
+    padding: 10,
+    paddingVertical: 15,
+    marginTop: 7,
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 7,
+  },
+  passwordInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    paddingVertical: 15,
+  },
+  passwordToggleButton: {
+    position: "absolute",
+    right: 10,
+    padding: 5,
   },
   formTitle: {
     fontSize: 25,
     color: colors.text,
+    fontWeight: "bold",
+    marginTop: 10,
   },
   formDescription: {
     fontSize: 15,
-    marginBottom: 7,
     color: colors.palette.secondary300,
   },
-  formInput: {
-    marginTop: 25,
-    backgroundColor: colors.palette.neutral100,
-    paddingVertical: 20,
-    paddingHorizontal: 10,
-    borderRadius: 7,
-    color: colors.text,
+  formLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 10,
   },
-  passwordToggle: {
-    color: colors.palette.secondary300,
-    marginVertical: 10,
+  buttonContainer: {
+    marginTop: 10,
   },
 })

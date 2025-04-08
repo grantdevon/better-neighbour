@@ -5,6 +5,9 @@ import LottieView from "lottie-react-native"
 import { makeAutoObservable } from "mobx"
 import { Button } from "app/components"
 import InAppReview from "react-native-in-app-review"
+import useHapticFeedback from "app/utils/haptics"
+
+const ios = Platform.OS === "ios"
 
 // Welcome screen data type
 interface WelcomeScreenData {
@@ -52,53 +55,53 @@ const welcomeScreens: WelcomeScreenData[] = [
 const welcomeStore = new WelcomeStore()
 
 export const Welcome = observer(({ navigation }) => {
+  const hapticFeedback = useHapticFeedback()
   const currentScreen = welcomeScreens[welcomeStore.currentScreenIndex]
 
   const handleLogin = () => {
-    if (Platform.OS === "android") {
-      InAppReview.RequestInAppReview()
-        .then((hasFlowFinishedSuccessfully) => {
-          // when return true in android it means user finished or close review flow
-          console.log("InAppReview in android", hasFlowFinishedSuccessfully)
+    InAppReview.RequestInAppReview()
+      .then((hasFlowFinishedSuccessfully) => {
+        // when return true in android it means user finished or close review flow
+        console.log("InAppReview in android", hasFlowFinishedSuccessfully)
 
-          // when return true in ios it means review flow lanuched to user.
-          console.log("InAppReview in ios has launched successfully", hasFlowFinishedSuccessfully)
+        // when return true in ios it means review flow lanuched to user.
+        console.log("InAppReview in ios has launched successfully", hasFlowFinishedSuccessfully)
 
-          // 1- you have option to do something ex: (navigate Home page) (in android).
-          // 2- you have option to do something,
-          // ex: (save date today to lanuch InAppReview after 15 days) (in android and ios).
+        // 1- you have option to do something ex: (navigate Home page) (in android).
+        // 2- you have option to do something,
+        // ex: (save date today to lanuch InAppReview after 15 days) (in android and ios).
 
-          // 3- another option:
-          if (hasFlowFinishedSuccessfully) {
-            // do something for ios
-            // do something for android
-            navigation.navigate("Login")
-          }
+        // 3- another option:
+        if (hasFlowFinishedSuccessfully) {
+          // do something for ios
+          // do something for android
+          navigation.navigate("NotificationPermission")
+        }
 
-          // for android:
-          // The flow has finished. The API does not indicate whether the user
-          // reviewed or not, or even whether the review dialog was shown. Thus, no
-          // matter the result, we continue our app flow.
+        // for android:
+        // The flow has finished. The API does not indicate whether the user
+        // reviewed or not, or even whether the review dialog was shown. Thus, no
+        // matter the result, we continue our app flow.
 
-          // for ios
-          // the flow lanuched successfully, The API does not indicate whether the user
-          // reviewed or not, or he/she closed flow yet as android, Thus, no
-          // matter the result, we continue our app flow.
-        })
-        .catch((error) => {
-          navigation.navigate("Login")
+        // for ios
+        // the flow lanuched successfully, The API does not indicate whether the user
+        // reviewed or not, or he/she closed flow yet as android, Thus, no
+        // matter the result, we continue our app flow.
+      })
+      .catch((error) => {
+        navigation.navigate("NotificationPermission")
 
-          //we continue our app flow.
-          // we have some error could happen while lanuching InAppReview,
-          // Check table for errors and code number that can return in catch.
-          console.log(error)
-        })
-    } else {
-      navigation.navigate("Login")
-    }
+        //we continue our app flow.
+        // we have some error could happen while lanuching InAppReview,
+        // Check table for errors and code number that can return in catch.
+        console.log(error)
+      })
   }
 
   const handleNext = () => {
+    if (ios) {
+      hapticFeedback("selection")
+    }
     if (welcomeStore.currentScreenIndex < welcomeScreens.length - 1) {
       welcomeStore.nextScreen()
     } else {
@@ -109,10 +112,9 @@ export const Welcome = observer(({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
+        <LottieView source={currentScreen.lottieRoute} autoPlay loop style={styles.lottie} />
         <Text style={styles.title}>{currentScreen.title}</Text>
         <Text style={styles.subtitle}>{currentScreen.subtitle}</Text>
-
-        <LottieView source={currentScreen.lottieRoute} autoPlay loop style={styles.lottie} />
       </View>
 
       <View style={styles.buttonContainer}>
@@ -130,7 +132,7 @@ export const Welcome = observer(({ navigation }) => {
         <Button
           preset="filled"
           onPress={handleNext}
-          text={welcomeStore.currentScreenIndex < welcomeScreens.length - 1 ? "Next" : "Login"}
+          text={welcomeStore.currentScreenIndex < welcomeScreens.length - 1 ? "Next" : "Continue"}
         />
       </View>
     </View>
@@ -153,12 +155,12 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     alignItems: "center",
-    marginVertical: 50,
+    marginTop: "20%",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginVertical: 20,
     textAlign: "center",
   },
   subtitle: {
@@ -168,7 +170,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: "100%",
-    marginBottom: 20,
+    marginBottom: 30,
   },
   nextButton: {
     backgroundColor: "#007AFF",

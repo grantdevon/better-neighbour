@@ -27,12 +27,13 @@ export const ReportStoreModel = types
       self.state = "pending"
       try {
         const result = yield firebaseModel.fetchDocumentsByDateAndProvince(collection, date, province) 
-        const sortedReports = sortReports(result, userCoords);
-        self.reports = sortedReports
+        const sortedReports = sortReports(result);
+        self.reports = sortedReports        
         self.state = "done"
       } catch (error) {
         console.log(error)
-        self.reports = []
+        const reports: any[] = []
+        self.reports = reports
         self.state = "done"
       }
     })

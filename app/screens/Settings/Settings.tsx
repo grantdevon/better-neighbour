@@ -48,12 +48,6 @@ export const Settings: FC<settingsProps> = observer(({ navigation }) => {
       action: () => shareApplication(),
       type: "primary",
     },
-    {
-      title: "Support our mission",
-      icon: "heart",
-      action: () => actionDisabledAlert(),
-      type: "primary",
-    },
     { title: "Sign out", icon: "log-out", action: () => signOutUser(), type: "secondary" },
     {
       title: "Delete my account",
@@ -103,7 +97,7 @@ export const Settings: FC<settingsProps> = observer(({ navigation }) => {
           <Text
             text={`${user.firstName} ${user.lastName}`}
             preset="heading"
-            size="xxl"
+            size="xl"
             style={styles.heading}
           />
           <View style={styles.membershipContainer}>
@@ -115,13 +109,12 @@ export const Settings: FC<settingsProps> = observer(({ navigation }) => {
             />
             <Text
               text={`better neighbour since ${user.dateJoined}`}
-              preset="subheading"
-              size="md"
-              weight="medium"
+              preset="formLabel"
+              size="xxs"
               style={styles.memberText}
             />
           </View>
-          <View style={styles.verificationContainer}>
+          {/* <View style={styles.verificationContainer}>
             <Icon
               name={auth().currentUser?.emailVerified ? "checkmark-circle" : "alert-circle"}
               size={16}
@@ -146,7 +139,7 @@ export const Settings: FC<settingsProps> = observer(({ navigation }) => {
                 },
               ]}
             />
-          </View>
+          </View> */}
         </View>
       </View>
     )
@@ -246,6 +239,9 @@ export const Settings: FC<settingsProps> = observer(({ navigation }) => {
     const hydrate = async () => {
       try {
         await getUser(id)
+        console.log('====================================');
+        console.log(user);
+        console.log('====================================');
         if (!auth().currentUser?.emailVerified) {
           setActionArray((prevArray) => {
             const newArray = [
@@ -273,9 +269,9 @@ export const Settings: FC<settingsProps> = observer(({ navigation }) => {
         <Profile user={user} />
         <Actions />
         <Text
-          text={`app version: ${appVersion} - BETA`}
-          preset="subheading"
-          size="xs"
+          text={`app version: ${appVersion}`}
+          preset="formHelper"
+          size="xxs"
           style={styles.appVersion}
         />
       </Screen>
@@ -300,11 +296,11 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     backgroundColor: colors.palette.primary300,
     justifyContent: "center",
-    marginBottom: 16,
+    marginVertical: 16,
   },
   avatarText: {
     color: colors.palette.neutral100,
-    fontSize: 21,
+    fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
   },
@@ -346,7 +342,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: colors.palette.neutral200,
-    padding: 16,
+    padding: 12,
     borderRadius: 12,
     marginBottom: 12,
   },
@@ -358,8 +354,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   actionText: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 13,
+    fontWeight: "500",
     color: colors.palette.neutral800,
   },
   actionArrow: {
@@ -380,5 +376,6 @@ const styles = StyleSheet.create({
   appVersion: {
     textAlign: "center",
     paddingTop: 20,
+    fontSize: 9
   },
 })

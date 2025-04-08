@@ -18,8 +18,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import Icon from "react-native-vector-icons/Ionicons"
 import Toast from "react-native-toast-message"
 import { requestUserPermission } from "app/utils/permissions"
-import messaging from "@react-native-firebase/messaging";
-
+import messaging from "@react-native-firebase/messaging"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -36,6 +35,8 @@ import messaging from "@react-native-firebase/messaging";
  */
 export type AppStackParamList = {
   HomeTab: undefined
+  HomeFeedTab: undefined
+  CommunityFeedTab: undefined
   MapTab: coords | undefined
   SettingsTab: undefined
 
@@ -52,6 +53,19 @@ export type HomeStackParamList = {
   Home: undefined
   Locations: undefined
 }
+
+export type HomeFeedStackParamList = {
+  HomeFeed: undefined
+  FeedDetails: undefined
+}
+
+export type CommunityFeedStackParamList = {
+  CommunityFeed: undefined
+  CommunityChat: undefined
+  CreateCommunity: undefined
+  JoinCommunity: undefined
+}
+
 export type MapStackParamList = {
   Map: undefined
   Report: { lat: number; lng: number }
@@ -65,6 +79,9 @@ export type AuthStackParamList = {
   Welcome: undefined
   Login: undefined
   SignUp: undefined
+  NotificationPermission: undefined
+  LocationsPermission: undefined
+  CreateAccount: undefined
 }
 
 /**
@@ -82,6 +99,8 @@ export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStack
 const Stack = createNativeStackNavigator<AppStackParamList>()
 const Tab = createBottomTabNavigator<AppStackParamList>()
 const HomeStackNavigator = createNativeStackNavigator<HomeStackParamList>()
+const HomeFeedStackNavigator = createNativeStackNavigator<HomeFeedStackParamList>()
+const CommunityFeedStackNavigator = createNativeStackNavigator<CommunityFeedStackParamList>()
 const MapStackNavigator = createNativeStackNavigator<MapStackParamList>()
 const SettingsStackNavigator = createNativeStackNavigator<SettingsStackParamList>()
 
@@ -96,6 +115,49 @@ const HomeStack = observer(function HomeStack() {
       <HomeStackNavigator.Screen name="Home" component={Screens.Home} />
       <HomeStackNavigator.Screen name="Locations" component={Screens.Locations} />
     </HomeStackNavigator.Navigator>
+  )
+})
+
+const HomeFeedStack = observer(function HomeFeedStack() {
+  return (
+    <HomeFeedStackNavigator.Navigator
+      screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
+    >
+      <HomeStackNavigator.Screen name="Home" component={Screens.HomeFeed} />
+      <HomeStackNavigator.Screen
+        name="FeedDetails"
+        component={Screens.FeedDetails}
+        options={{
+          presentation: "modal",
+          animation: "slide_from_bottom",
+          gestureEnabled: true,
+          gestureDirection: "vertical",
+        }}
+      />
+    </HomeFeedStackNavigator.Navigator>
+  )
+})
+
+const CommunityFeedStack = observer(function CommunityFeedStack() {
+  return (
+    <CommunityFeedStackNavigator.Navigator
+      screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
+    >
+      <CommunityFeedStackNavigator.Screen name="CommunityFeed" component={Screens.CommunityFeed} />
+      <CommunityFeedStackNavigator.Screen name="CommunityChat" component={Screens.CommunityChat} />
+      <CommunityFeedStackNavigator.Screen name="CreateCommunity" component={Screens.CreateCommunity} />
+      <CommunityFeedStackNavigator.Screen name="JoinCommunity" component={Screens.JoinCommunity} />
+      {/* <HomeStackNavigator.Screen
+        name="FeedDetails"
+        component={Screens.FeedDetails}
+        options={{
+          presentation: "modal",
+          animation: "slide_from_bottom",
+          gestureEnabled: true,
+          gestureDirection: "vertical",
+        }}
+      /> */}
+    </CommunityFeedStackNavigator.Navigator>
   )
 })
 const MapStack = observer(function MapStack() {
@@ -117,7 +179,11 @@ const SettingsStack = observer(function SettingsStack() {
     >
       {/* <MapStackNavigator.Screen name="Welcome" component={Screens.WelcomeScreen} /> */}
       <SettingsStackNavigator.Screen name="Settings" component={Screens.Settings} />
-      <SettingsStackNavigator.Screen name="Feedback" component={Screens.Feedback} />
+      <SettingsStackNavigator.Screen
+        name="Feedback"
+        component={Screens.Feedback}
+        options={{ headerShown: false }}
+      />
     </SettingsStackNavigator.Navigator>
   )
 })
@@ -134,11 +200,19 @@ const AppStack = observer(function AppStack() {
       }}
     >
       <Tab.Screen
-        name="HomeTab"
-        component={HomeStack}
+        name="HomeFeedTab"
+        component={HomeFeedStack}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => <Icon name="home" size={20} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="CommunityFeedTab"
+        component={CommunityFeedStack}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color }) => <Icon name="people-circle-outline" size={20} color={color} />,
         }}
       />
       <Tab.Screen
@@ -168,6 +242,15 @@ const AuthStack = observer(function AuthStack() {
       initialRouteName="Welcome"
     >
       <AuthStackNavigator.Screen name="Welcome" component={Screens.Welcome} />
+      <AuthStackNavigator.Screen
+        name="NotificationPermission"
+        component={Screens.NotificationPermission}
+      />
+      <AuthStackNavigator.Screen
+        name="LocationsPermission"
+        component={Screens.LocationsPermission}
+      />
+      <AuthStackNavigator.Screen name="CreateAccount" component={Screens.CreateAccount} />
       <AuthStackNavigator.Screen name="Login" component={Screens.Login} />
       <AuthStackNavigator.Screen name="SignUp" component={Screens.SignUp} />
     </AuthStackNavigator.Navigator>
@@ -195,27 +278,22 @@ export const AppNavigator = observer(function AppNavigator(props: NavigationProp
   }, [])
 
   useEffect(() => {
-    requestUserPermission()
+    const getToken = async () => {
+      const token = await messaging().getToken()
+      console.log("FCM Token:", token)
+    }
+
+    getToken()
   }, [])
 
   useEffect(() => {
-    const getToken = async () => {
-      const token = await messaging().getToken();
-      console.log("FCM Token:", token);
-      // Send this token to your backend to target the device
-    };
-  
-    getToken();
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = messaging().onTokenRefresh(token => {
-      console.log("FCM Token refreshed:", token);
+    const unsubscribe = messaging().onTokenRefresh((token) => {
+      console.log("FCM Token refreshed:", token)
       // Update your backend with the new token
-    });
-  
-    return unsubscribe; // Cleanup the listener when the component unmounts
-  }, []);
+    })
+
+    return unsubscribe // Cleanup the listener when the component unmounts
+  }, [])
 
   if (initializing) return null
 

@@ -23,7 +23,6 @@ import { ReportCard } from "app/components/ReportCard"
 import * as Location from "expo-location"
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet"
 import MapView, { Heatmap, PROVIDER_GOOGLE } from "react-native-maps"
-import { Chip } from "@rneui/base"
 import { fetchLocationFromCoords } from "app/utils/map"
 
 interface NominatimResponse {
@@ -46,10 +45,13 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
   })
 
   const {
-    reportStore: { getReports, getProvinceReports, reports },
+    reportStore: { getProvinceReports, reports },
     mapStore: { setMapState },
-    userStore: { locations, removeLocation },
+    userStore: { removeLocation },
   } = useStores()
+
+  console.log(JSON.stringify(reports));
+  
 
   const actionSheetRef = useRef<ActionSheetRef>(null)
 
@@ -74,17 +76,6 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
       let coords = { lat: location?.coords.latitude, lng: location?.coords.longitude }
       let newLocation = await Location.getCurrentPositionAsync({})
       setLocation(newLocation)
-      console.log(newLocation)
-
-      // if (locations.length > 0) {
-      //   console.log("====================================")
-      //   console.log("locations")
-      //   console.log("====================================")
-      //   await getReports("reports", getFormattedDate(), coords, locations)
-      // } else
-      //  {
-      // if (coords) {
-
       const province = await fetchLocationFromCoords(
         newLocation.coords.latitude,
         newLocation.coords.longitude,
@@ -93,9 +84,6 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
       console.log(province)
       console.log("====================================")
       await getProvinceReports("reports", getFormattedDate(), coords, province)
-      // }
-
-      // }
       setLoading(false)
     } catch (error) {
       setLoading(false)

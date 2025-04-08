@@ -92,7 +92,7 @@ const fetchDocumentsByDateAndProvince = async (
 
     const querySnapshot = await firestore()
       .collection(collection)
-      .where("date", "==", dateValue)
+      // .where("date", "==", dateValue)
       .where("province", "==", province.trim())
       .get()
 

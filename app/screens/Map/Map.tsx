@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity, Alert, Linking } from "react-native"
+import { StyleSheet, View, TouchableOpacity, Alert, Linking, ActivityIndicator } from "react-native"
 import React, { FC, useCallback, useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
@@ -35,27 +35,196 @@ interface ReportProps {
 export const Map: FC<mapProps> = observer(({ navigation }) => {
   const {
     mapStore: { mapState, setMapState },
-    userStore: { locations },
-    reportStore: { getReports, getProvinceReports, reports },
+    reportStore: { getProvinceReports, reports },
   } = useStores()
 
+  // Default to Cape Town coordinates
   const [coords, setCoords] = useState<{ latitude: number; longitude: number }>({
-    latitude: 0,
-    longitude: 0,
+    latitude: -33.9249, // Cape Town latitude
+    longitude: 18.4241, // Cape Town longitude
   })
+
   const mapRef = useRef<MapView>(null)
 
   const [currentRegion, setCurrentRegion] = useState<Region>({
-    latitude: 0,
-    longitude: 0,
-    latitudeDelta: 0.015,
-    longitudeDelta: 0.0121,
+    latitude: -33.9249, // Default to Cape Town
+    longitude: 18.4241,
+    latitudeDelta: 0.05, // Increased for better initial view
+    longitudeDelta: 0.05,
   })
+
   const [heatMapData, setHeatMapData] = useState<[]>([])
-
   const [location, setLocation] = useState<Location.LocationObject | null>(null)
-
   const [locationPermission, setLocationPermission] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [dataLoading, setDataLoading] = useState<boolean>(true)
+
+  // Initial data load - will use default Cape Town location
+  useEffect(() => {
+    loadInitialHeatmapData()
+  }, [])
+
+  // Try to get location and update map when component mounts
+  useEffect(() => {
+    requestLocationAndUpdateMap()
+  }, [])
+
+  // Load heatmap with default location
+  const loadInitialHeatmapData = async () => {
+    setDataLoading(true)
+    try {
+      // Default Cape Town coords for initial load
+      const defaultCoords = { lat: -33.9249, lng: 18.4241 }
+      await getProvinceReports("reports", getFormattedDate(), defaultCoords, "Cape Town")
+
+      if (reports && reports.length > 0) {
+        updateHeatMapFromReports(reports)
+        Toast.show({
+          type: "info",
+          text1: "Showing reports for Cape Town",
+          text2: "Getting your precise location...",
+          visibilityTime: 3000,
+        })
+      } else {
+        Toast.show({
+          type: "info",
+          text1: "No reports found in this area",
+          text2: "Try making a new report",
+          visibilityTime: 3000,
+        })
+      }
+    } catch (error) {
+      console.error("Error loading initial data:", error)
+      Toast.show({
+        type: "error",
+        text1: "Error loading reports",
+        text2: "Please pull to refresh",
+        visibilityTime: 3000,
+      })
+    } finally {
+      setDataLoading(false)
+    }
+  }
+
+  // Update heatmap data from reports
+  const updateHeatMapFromReports = (reportData) => {
+    if (!reportData || reportData.length === 0) {
+      setHeatMapData([])
+      return
+    }
+
+    let tempHeatMapArr: any = []
+    reportData.forEach((report) => {
+      tempHeatMapArr.push({
+        latitude: report.coords.lat,
+        longitude: report.coords.lng,
+        weight: 30, // Increased weight for better visibility
+        radius: 25, // Added custom radius per point if supported
+      })
+    })
+    setHeatMapData(tempHeatMapArr)
+  }
+
+  // Request location permission and update map
+  const requestLocationAndUpdateMap = async () => {
+    setIsLoading(true)
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync()
+      if (status !== "granted") {
+        Alert.alert("Alert!", "Permission to access location was denied")
+        setLocationPermission(false)
+        setIsLoading(false)
+        return
+      }
+
+      // Use a timeout to ensure we don't wait too long
+      const locationPromise = Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      })
+
+      // Set a timeout for location fetch (8 seconds)
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Location timeout")), 8000),
+      )
+
+      // Race between location fetch and timeout
+      try {
+        const location = (await Promise.race([
+          locationPromise,
+          timeoutPromise,
+        ])) as Location.LocationObject
+        setLocation(location)
+        setCoords({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        })
+
+        // Animate to user location
+        mapRef.current?.animateToRegion(
+          {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0.03,
+            longitudeDelta: 0.03,
+          },
+          1000,
+        )
+
+        // Update data with actual location
+        updateMapDataWithLocation(location)
+      } catch (err) {
+        console.log("Location timeout or error, using default data", err)
+        // We already loaded with default data, so just show a message
+        Toast.show({
+          type: "info",
+          text1: "Location services unavailable",
+          text2: "Showing default location data",
+          visibilityTime: 3000,
+        })
+      }
+    } catch (error) {
+      console.error("Error getting location:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Update map data with user's actual location
+  const updateMapDataWithLocation = async (userLocation: Location.LocationObject) => {
+    try {
+      setDataLoading(true)
+      const coords = {
+        lat: userLocation.coords.latitude,
+        lng: userLocation.coords.longitude,
+      }
+
+      const province = await fetchLocationFromCoords(
+        userLocation.coords.latitude,
+        userLocation.coords.longitude,
+      )
+
+      await getProvinceReports(
+        "reports",
+        getFormattedDate(),
+        coords,
+        province || "Current Location",
+      )
+
+      if (reports) {
+        updateHeatMapFromReports(reports)
+
+        Toast.show({
+          type: "success",
+          text1: `Showing reports near ${province || "your location"}`,
+          visibilityTime: 3000,
+        })
+      }
+    } catch (error) {
+      console.error("Error updating with location:", error)
+    } finally {
+      setDataLoading(false)
+    }
+  }
 
   const pinPoint = () => {
     const state: MapState = mapState === "HeatMap" ? "Pin" : "HeatMap"
@@ -84,52 +253,44 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
     setMapState("HeatMap")
   }
 
-  const updateMapData = async () => {
+  const refreshMapData = async () => {
+    setDataLoading(true)
+    console.log("====================================")
+    console.log("LOCATION ", location)
+    console.log("====================================")
     try {
-      let coords = { lat: location?.coords.latitude, lng: location?.coords.longitude }
-      let newLocation = await Location.getCurrentPositionAsync({})
-      const province = await fetchLocationFromCoords(
-        newLocation.coords.latitude,
-        newLocation.coords.longitude,
-      )
-      await getProvinceReports("reports", getFormattedDate(), coords, province)
-      if (reports) {
-        let tempHeatMapArr: [] = []
-        reports.forEach((report) => {
-          tempHeatMapArr.push({
-            latitude: report.coords.lat,
-            longitude: report.coords.lng,
-            weight: 10,
-            text: "string",
-          })
-        })
-        setHeatMapData(tempHeatMapArr)
+      if (location) {
+        // Use actual location if available
+        await updateMapDataWithLocation(location)
+      } else {
+        // Fall back to current map region
+        const coords = {
+          lat: currentRegion.latitude,
+          lng: currentRegion.longitude,
+        }
+
+        await getProvinceReports(
+          "reports",
+          getFormattedDate(),
+          coords,
+          "Cape Winelands District Municipality",
+        )
+
+        if (reports) {
+          updateHeatMapFromReports(reports)
+        }
       }
     } catch (error) {
-      console.error(error)
-      setHeatMapData([])
+      console.error("Error refreshing map data:", error)
+      Toast.show({
+        type: "error",
+        text1: "Failed to refresh data",
+        visibilityTime: 3000,
+      })
+    } finally {
+      setDataLoading(false)
     }
   }
-
-  useEffect(() => {
-    async function getCurrentLocation() {
-      let { status } = await Location.requestForegroundPermissionsAsync()
-      if (status !== "granted") {
-        Alert.alert("Alert!", "Permission to access location was denied")
-        setLocationPermission(false)
-        return
-      }
-
-      let location = await Location.getCurrentPositionAsync({})
-      setCoords({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      })
-      setLocation(location)
-    }
-
-    getCurrentLocation()
-  }, [])
 
   const confirmSettings = () => {
     Alert.alert("Alert!", "Please restart your app after granting access.", [
@@ -142,10 +303,15 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      updateMapData()
+      // Fetch data when the screen is focused
+      refreshMapData()
+
+      // Optional: Cleanup function if needed
+      return () => {
+        console.log("Screen unfocused")
+      }
     }, []),
   )
-
   if (!locationPermission) {
     return (
       <View style={styles.noPermissioncontainer}>
@@ -167,12 +333,7 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
         mapType="standard"
         style={styles.map}
         provider={PROVIDER_GOOGLE}
-        region={{
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-          latitudeDelta: 0.015,
-          longitudeDelta: 0.0121,
-        }}
+        initialRegion={currentRegion}
         zoomEnabled
         onRegionChangeComplete={(region) => setCurrentRegion(region)}
         maxZoomLevel={17}
@@ -181,15 +342,65 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
           <Heatmap
             points={heatMapData}
             opacity={0.8}
-            radius={50}
+            radius={80} // Increased for better visibility
             gradient={{
-              colors: ["#F29305", "#E50000"],
-              startPoints: [0.3, 1],
-              colorMapSize: 100,
+              colors: ["#FFA500", "#F29305", "#E50000"], // Added orange for better gradient
+              startPoints: [0.1, 0.5, 1],
+              colorMapSize: 256, // Increased for smoother gradients
             }}
           />
         ) : null}
       </MapView>
+
+      {/* Loading indicators */}
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={colors.palette.primary500} />
+          <Text style={styles.loadingText}>Getting your location...</Text>
+        </View>
+      )}
+
+      {dataLoading && !isLoading && (
+        <View style={styles.dataLoadingIndicator}>
+          <ActivityIndicator size="small" color="white" />
+          <Text style={styles.dataLoadingText}>Loading reports...</Text>
+        </View>
+      )}
+
+      {/* User location button */}
+      {!isLoading && (
+        <TouchableOpacity
+          style={styles.myLocationButton}
+          onPress={() => {
+            if (location) {
+              mapRef.current?.animateToRegion(
+                {
+                  latitude: location.coords.latitude,
+                  longitude: location.coords.longitude,
+                  latitudeDelta: 0.03,
+                  longitudeDelta: 0.03,
+                },
+                1000,
+              )
+            } else {
+              Toast.show({
+                type: "info",
+                text1: "Location not available",
+                visibilityTime: 2000,
+              })
+            }
+          }}
+        >
+          <Icon name="my-location" type="material" color={colors.palette.neutral800} size={24} />
+        </TouchableOpacity>
+      )}
+
+      {/* Refresh data button */}
+      {!isLoading && !dataLoading && (
+        <TouchableOpacity style={styles.refreshButton} onPress={refreshMapData}>
+          <Icon name="refresh" type="material" color={colors.palette.neutral800} size={24} />
+        </TouchableOpacity>
+      )}
 
       {mapState === "Pin" && (
         <View style={styles.pinContainer}>
@@ -225,6 +436,28 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
           }}
           color={colors.palette.angry500}
         />
+      )}
+
+      {/* Heatmap legend when heatmap has data */}
+      {mapState === "HeatMap" && heatMapData.length > 0 && (
+        <View style={styles.heatmapLegend}>
+          <Text style={styles.legendTitle}>Report Density</Text>
+          <View style={styles.legendGradient}>
+            <Text style={styles.legendText}>Low</Text>
+            <View style={styles.gradientBar}>
+              {/* Replace LinearGradient with a simple colored bar */}
+              <View style={styles.colorBar}>
+                <View style={[styles.colorSegment, { backgroundColor: "#0000FF", flex: 1 }]} />
+                {/* Blue for low */}
+                <View style={[styles.colorSegment, { backgroundColor: "#00FF00", flex: 1 }]} />
+                {/* Green for medium */}
+                <View style={[styles.colorSegment, { backgroundColor: "#FF0000", flex: 1 }]} />
+                {/* Red for high */}
+              </View>
+            </View>
+            <Text style={styles.legendText}>High</Text>
+          </View>
+        </View>
       )}
     </View>
   )
@@ -322,5 +555,117 @@ const styles = StyleSheet.create({
     color: colors.palette.angry500,
     fontWeight: "bold",
     fontSize: 16,
+  },
+  // Add these to your existing styles object
+
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: colors.palette.neutral800,
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  dataLoadingIndicator: {
+    position: "absolute",
+    top: 20,
+    alignSelf: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 100,
+  },
+  dataLoadingText: {
+    color: "white",
+    marginLeft: 8,
+    fontSize: 14,
+  },
+  myLocationButton: {
+    position: "absolute",
+    bottom: 140,
+    right: 16,
+    backgroundColor: "white",
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  refreshButton: {
+    position: "absolute",
+    bottom: 196,
+    right: 16,
+    backgroundColor: "white",
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  heatmapLegend: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 8,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  legendTitle: {
+    fontSize: 12,
+    fontWeight: "bold",
+    marginBottom: 5,
+    color: colors.palette.neutral800,
+  },
+  legendGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  gradientBar: {
+    height: 10,
+    flex: 1,
+    marginHorizontal: 8,
+    borderRadius: 5,
+    overflow: "hidden",
+  },
+  legendText: {
+    fontSize: 10,
+    color: colors.palette.neutral600,
+  },
+  colorBar: {
+    flexDirection: "row",
+    height: "100%",
+    width: "100%",
+  },
+  colorSegment: {
+    height: "100%",
   },
 })
