@@ -7,6 +7,7 @@ import Icon from "react-native-vector-icons/Ionicons"
 import { useNavigation } from "@react-navigation/native"
 import { useEffect, useState } from "react"
 import * as Location from "expo-location"
+import { uiColors } from "app/utils/uiColors"
 
 interface ReportDetails {
   coords: {
@@ -182,7 +183,7 @@ export const FeedDetails = observer(({ route }: FeedDetailsProps) => {
         </MapView>
 
         <View style={styles.distanceContainer}>
-          <Icon name="location" size={20} color={colors.palette.primary500} />
+          <Icon name="location" size={20} color={uiColors.primary} />
           <Text style={styles.distanceText}>
             {distance !== null
               ? `${
@@ -201,7 +202,7 @@ export const FeedDetails = observer(({ route }: FeedDetailsProps) => {
             <Icon
               name={getReportTypeIcon(report.reportType)}
               size={24}
-              color={colors.palette.primary500}
+              color={uiColors.primary}
               style={styles.reportIcon}
             />
             <View>
@@ -215,12 +216,12 @@ export const FeedDetails = observer(({ route }: FeedDetailsProps) => {
 
         <View style={styles.cardBody}>
           <View style={styles.infoRow}>
-            <Icon name="person" size={20} color={colors.palette.primary500} />
+            <Icon name="person" size={20} color={uiColors.primary} />
             <Text style={styles.infoText}>{report.name}</Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Icon name="location" size={20} color={colors.palette.primary500} />
+            <Icon name="location" size={20} color={uiColors.primary} />
             <Text style={styles.infoText}>{report.location}</Text>
           </View>
 
@@ -331,7 +332,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   infoText: {
-    marginLeft: 12,
+    marginLeft: 15,
     fontSize: 15,
     color: colors.palette.neutral700,
   },
@@ -339,13 +340,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   descriptionLabel: {
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: "bold",
     color: colors.palette.neutral800,
     marginBottom: 10,
   },
   description: {
-    fontSize: 11,
+    fontSize: 15,
     color: colors.palette.neutral600,
     lineHeight: 20,
   },

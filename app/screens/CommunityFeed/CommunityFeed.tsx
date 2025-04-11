@@ -17,6 +17,8 @@ import firestore, { getDocs } from "@react-native-firebase/firestore"
 // Set this to true to make communities free for all users
 const COMMUNITIES_FREE_OVERRIDE = true
 
+const isLocked: boolean = true
+
 export const CommunityFeed = observer(({ navigation }) => {
   const {
     userStore: { user },
@@ -151,6 +153,41 @@ export const CommunityFeed = observer(({ navigation }) => {
           <Text style={styles.upgradeButtonText}>Upgrade to Premium</Text>
         </TouchableOpacity>
       </View>
+    )
+  }
+
+  if (isLocked) {
+    return (
+      <SafeAreaView
+        style={[
+          styles.container,
+          {
+            justifyContent: "center",
+          },
+        ]}
+      >
+        <Text
+          style={{
+            textAlign: "center",
+            verticalAlign: "middle",
+            fontSize: 16,
+            fontWeight: "bold",
+          }}
+        >
+          This feature is coming soon! ❤️
+        </Text>
+        <Text
+          style={{
+            textAlign: "center",
+            verticalAlign: "middle",
+            fontSize: 12,
+            paddingTop: 10
+            // fontWeight: "bold",
+          }}
+        >
+          Keep watching this page for updates! 👮🏻‍♀️
+        </Text>
+      </SafeAreaView>
     )
   }
 

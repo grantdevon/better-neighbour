@@ -12,6 +12,7 @@ import auth from "@react-native-firebase/auth"
 import SettingsLoader from "./Settings.loader"
 import { Screen, Text } from "app/components"
 import { firebaseModel } from "app/services/Firebase/firebase.service"
+import { uiColors } from "app/utils/uiColors"
 
 type settingsProps = NativeStackScreenProps<SettingsStackParamList, "Settings">
 
@@ -104,7 +105,7 @@ export const Settings: FC<settingsProps> = observer(({ navigation }) => {
             <Icon
               name="star"
               size={16}
-              color={colors.palette.neutral700}
+              color={uiColors.primary}
               style={styles.memberIcon}
             />
             <Text
@@ -159,7 +160,7 @@ export const Settings: FC<settingsProps> = observer(({ navigation }) => {
           <Icon
             name={action.icon}
             size={20}
-            color={action.type === "danger" ? colors.palette.angry500 : colors.palette.primary300}
+            color={action.type === "danger" ? colors.palette.angry500 : uiColors.primary}
             style={styles.actionIcon}
           />
           <Text
@@ -294,7 +295,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: colors.palette.primary300,
+    backgroundColor: uiColors.primary,
     justifyContent: "center",
     marginVertical: 16,
   },
@@ -376,6 +377,6 @@ const styles = StyleSheet.create({
   appVersion: {
     textAlign: "center",
     paddingTop: 20,
-    fontSize: 9
+    fontSize: 12
   },
 })

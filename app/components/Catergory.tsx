@@ -4,6 +4,7 @@ import { useState, useRef } from "react"
 import { colors } from "app/theme"
 import Ionicons from "react-native-vector-icons/Ionicons"
 import useHapticFeedback from "app/utils/haptics"
+import { uiColors } from "app/utils/uiColors"
 
 interface Category {
   id: string
@@ -56,7 +57,7 @@ const Categories: React.FC<CategoriesProps> = ({ onSelectCategory, selectedCateg
   return (
     <View style={styles.container}>
       <Text preset="formLabel" style={styles.title}>
-        Categories
+        Categories {selectedCategory ? `(${selectedCategory.name})` : ""}
       </Text>
       <ScrollView
         horizontal
@@ -76,22 +77,10 @@ const Categories: React.FC<CategoriesProps> = ({ onSelectCategory, selectedCateg
                 <Ionicons
                   name={category.icon}
                   size={24}
-                  color={selectedCategory?.id === category.id ? "#FFFFFF" : "#666666"}
+                  color={selectedCategory?.id === category.id ? "#FFFFFF" : uiColors.primary}
                 />
               </Pressable>
             </Animated.View>
-            <View style={styles.textContainer}>
-              <Text
-                style={[
-                  styles.categoryText,
-                  selectedCategory?.id === category.id && styles.selectedText,
-                ]}
-                numberOfLines={2}
-                adjustsFontSizeToFit
-              >
-                {category.name}
-              </Text>
-            </View>
           </View>
         ))}
       </ScrollView>
@@ -100,7 +89,7 @@ const Categories: React.FC<CategoriesProps> = ({ onSelectCategory, selectedCateg
 }
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 15,
+    marginTop: 15,
   },
   title: {
     marginBottom: 12,
@@ -120,13 +109,13 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: uiColors.lightGray,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 8,
   },
   selectedCircle: {
-    backgroundColor: colors.palette.primary300,
+    backgroundColor: uiColors.primary
   },
   pressable: {
     width: "100%",

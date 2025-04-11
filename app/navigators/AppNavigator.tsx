@@ -19,6 +19,7 @@ import Icon from "react-native-vector-icons/Ionicons"
 import Toast from "react-native-toast-message"
 import { requestUserPermission } from "app/utils/permissions"
 import messaging from "@react-native-firebase/messaging"
+import { uiColors } from "app/utils/uiColors"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -192,7 +193,7 @@ const AppStack = observer(function AppStack() {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: colors.palette.primary300,
+        tabBarActiveTintColor: uiColors.primary,
         tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: colors.palette.neutral200,

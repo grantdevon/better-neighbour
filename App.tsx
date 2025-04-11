@@ -4,6 +4,7 @@ import * as SplashScreen from "expo-splash-screen"
 import App from "./app/app"
 import messaging from '@react-native-firebase/messaging';
 
+globalThis.RNFB_SILENCE_MODULAR_DEPRECATION_WARNINGS = true;
 
 SplashScreen.preventAutoHideAsync()
 

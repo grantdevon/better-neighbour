@@ -60,9 +60,9 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
   const [dataLoading, setDataLoading] = useState<boolean>(true)
 
   // Initial data load - will use default Cape Town location
-  useEffect(() => {
-    loadInitialHeatmapData()
-  }, [])
+  // useEffect(() => {
+  //   loadInitialHeatmapData()
+  // }, [])
 
   // Try to get location and update map when component mounts
   useEffect(() => {
@@ -310,7 +310,7 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
       return () => {
         console.log("Screen unfocused")
       }
-    }, []),
+    }, [location]),
   )
   if (!locationPermission) {
     return (
@@ -342,7 +342,7 @@ export const Map: FC<mapProps> = observer(({ navigation }) => {
           <Heatmap
             points={heatMapData}
             opacity={0.8}
-            radius={80} // Increased for better visibility
+            radius={50} // Increased for better visibility
             gradient={{
               colors: ["#FFA500", "#F29305", "#E50000"], // Added orange for better gradient
               startPoints: [0.1, 0.5, 1],

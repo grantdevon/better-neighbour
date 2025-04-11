@@ -23,6 +23,7 @@ import Categories from "app/components/Catergory"
 import { useStores } from "app/models"
 import Report from "app/components/Report"
 import { getFormattedDate } from "app/utils/formatDate"
+import { uiColors } from "app/utils/uiColors"
 
 type homeProps = NativeStackScreenProps<AppStackParamList, "HomeFeedTab">
 
@@ -47,7 +48,7 @@ export const HomeFeed: FC<homeProps> = observer(({ navigation }) => {
   useHeader(
     {
       leftIcon: "location",
-      leftIconColor: colors.palette.primary500,
+      leftIconColor: uiColors.primary,
       leftText: province,
       containerStyle: {
         backgroundColor: "white",
@@ -188,7 +189,7 @@ export const HomeFeed: FC<homeProps> = observer(({ navigation }) => {
     return (
       <View style={styles.emptyStateContainer}>
         <View>
-          <Text style={{ fontSize: 12, fontWeight: "bold", marginBottom: 10, textAlign: "center" }}>
+          <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10, textAlign: "center" }}>
             No activity yet!
           </Text>
           <Button
@@ -197,14 +198,15 @@ export const HomeFeed: FC<homeProps> = observer(({ navigation }) => {
             onPress={navToReport}
             textStyle={{ color: colors.palette.neutral100, fontSize: 12 }}
             style={{
-              backgroundColor: colors.palette.primary500,
+              backgroundColor: uiColors.primary,
               borderRadius: 25,
               paddingHorizontal: 25,
+              paddingVertical: 10,
             }}
           />
         </View>
         <View>
-          <Icon name="sad-outline" size={74} color={colors.palette.primary500} />
+          <Icon name="sad-outline" size={74} color={uiColors.primary} />
         </View>
       </View>
     )
@@ -256,7 +258,7 @@ export const HomeFeed: FC<homeProps> = observer(({ navigation }) => {
           <Icon
             name="search"
             size={24}
-            color={isFocused ? colors.palette.primary500 : colors.palette.neutral300}
+            color={isFocused ? uiColors.primary : colors.palette.neutral300}
             style={{ marginRight: 10 }}
           />
           <TextInput

@@ -20,6 +20,7 @@ import { Dropdown } from "react-native-element-dropdown"
 import { TextInput } from "react-native-gesture-handler"
 import Icon from "react-native-vector-icons/Ionicons"
 import auth from "@react-native-firebase/auth"
+import { uiColors } from "app/utils/uiColors"
 
 // import analytics from "@react-native-firebase/analytics"
 
@@ -322,7 +323,7 @@ export const Report: FC = observer(({ navigation, route }) => {
             preset="filled"
             text="Make Report"
             onPress={makeReport}
-            style={{ backgroundColor: colors.palette.primary400, borderRadius: 10 }}
+            style={{ backgroundColor: uiColors.primary, borderRadius: 10 }}
             textStyle={{ color: colors.palette.neutral100 }}
           />
         </View>

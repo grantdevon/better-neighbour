@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { Share } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { colors } from "app/theme"
+import { uiColors } from "app/utils/uiColors"
 
 const Report = ({ report }) => {
   // Function to handle share button press
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.palette.primary500,
+    backgroundColor: uiColors.primary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
   shareButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.palette.primary500,
+    backgroundColor: uiColors.primary,
     paddingHorizontal: 15,
     paddingVertical: 5,
     borderRadius: 25,
