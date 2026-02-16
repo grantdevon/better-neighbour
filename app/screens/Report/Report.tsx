@@ -196,13 +196,13 @@ export const Report: FC = observer(({ navigation, route }) => {
       const data: IReport = {
         userId: user.id,
         name: user.firstName,
-        description: description,
+        description,
         location: locationValue?.toLowerCase(),
         province: ProvinceValue,
         reportType: value as string,
         date: getFormattedDate(),
         time: new Date().toTimeString(),
-        coords: coords,
+        coords,
       }
       try {
         setLoading(true)
@@ -333,74 +333,74 @@ export const Report: FC = observer(({ navigation, route }) => {
 })
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "space-between",
-    paddingHorizontal: 10,
-    backgroundColor: colors.palette.neutral200,
-  },
-  dropdown: {
-    height: 50,
-    borderColor: "gray",
-    borderWidth: 0.5,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 7,
-    paddingVertical: 15,
-    borderColor: "grey",
-    paddingHorizontal: 10,
-  },
   autoDetectedInput: {
     backgroundColor: colors.palette.neutral300,
     color: colors.palette.neutral700,
   },
   autoDetectedText: {
-    fontSize: 12,
     color: colors.palette.neutral600,
-    marginTop: 5,
+    fontSize: 12,
     marginBottom: 10,
+    marginTop: 5,
+  },
+  backButton: {
+    backgroundColor: colors.palette.neutral100,
+    borderRadius: 20,
+    elevation: 5,
+    height: 45,
+    marginTop: 15,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    width: 45,
+    zIndex: 2,
+  },
+  buttonContainer: {
+    marginVertical: 50,
+  },
+  container: {
+    backgroundColor: colors.palette.neutral200,
+    flex: 1,
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+  },
+  dropdown: {
+    borderColor: "gray",
+    borderRadius: 8,
+    borderWidth: 0.5,
+    height: 50,
+    paddingHorizontal: 8,
+  },
+  input: {
+    borderColor: "grey",
+    borderRadius: 7,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
   },
   inputDescription: {
-    borderWidth: 1,
-    borderRadius: 7,
     borderColor: "grey",
+    borderRadius: 7,
+    borderWidth: 1,
     paddingHorizontal: 10,
-    paddingVertical: 20,
     paddingTop: 15,
+    paddingVertical: 20,
   },
   inputLabel: {
     fontSize: 17,
     fontWeight: "bold",
     marginVertical: 10,
   },
-  buttonContainer: {
-    marginVertical: 50,
+  inputSearchStyle: {
+    fontSize: 16,
+    height: 40,
   },
   placeholderStyle: {
     fontSize: 16,
   },
   selectedTextStyle: {
     fontSize: 16,
-  },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
-  },
-  backButton: {
-    width: 45,
-    height: 45,
-    marginTop: 15,
-    zIndex: 2,
-    backgroundColor: colors.palette.neutral100,
-    padding: 10,
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
   },
 })

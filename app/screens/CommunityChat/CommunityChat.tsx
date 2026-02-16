@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react"
 import {
   View,
   Text,
-  FlatList,
   TextInput,
   TouchableOpacity,
   StyleSheet,
@@ -19,6 +18,7 @@ import { FontAwesome, MaterialIcons } from "@expo/vector-icons" // Assuming you'
 import { useNavigation, useRoute } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "app/models"
+import { ListView } from "app/components"
 import firestore from "@react-native-firebase/firestore"
 import storage from "@react-native-firebase/storage"
 
@@ -314,7 +314,7 @@ export const CommunityChat = observer(() => {
       behavior={Platform.OS === "ios" ? "padding" : null}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
-      <FlatList
+      <ListView
         ref={flatListRef}
         data={messages}
         renderItem={renderMessage}
@@ -322,6 +322,7 @@ export const CommunityChat = observer(() => {
         inverted
         onEndReached={fetchMoreMessages}
         onEndReachedThreshold={0.5}
+        estimatedItemSize={100}
         ListFooterComponent={
           loadingMore ? (
             <ActivityIndicator size="small" color="#0000ff" style={styles.loadMoreIndicator} />
@@ -382,82 +383,8 @@ export const CommunityChat = observer(() => {
 })
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F5F5F5",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  messageContainer: {
-    maxWidth: "80%",
-    padding: 10,
-    borderRadius: 10,
-    marginVertical: 5,
-    marginHorizontal: 10,
-  },
-  currentUserMessage: {
-    alignSelf: "flex-end",
-    backgroundColor: "#DCF8C6",
-  },
-  otherUserMessage: {
-    alignSelf: "flex-start",
-    backgroundColor: "white",
-  },
-  senderName: {
-    fontWeight: "bold",
-    marginBottom: 5,
-    fontSize: 12,
-  },
-  messageText: {
-    fontSize: 16,
-  },
-  messageImage: {
-    width: 200,
-    height: 150,
-    borderRadius: 10,
-    marginVertical: 5,
-  },
-  timestamp: {
-    fontSize: 10,
-    color: "#999",
-    alignSelf: "flex-end",
-    marginTop: 5,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    padding: 10,
-    backgroundColor: "white",
-    alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
-  },
-  input: {
-    flex: 1,
-    backgroundColor: "#F0F0F0",
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    maxHeight: 100,
-  },
   attachButton: {
     padding: 10,
-  },
-  sendButton: {
-    padding: 10,
-  },
-  loadMoreIndicator: {
-    padding: 10,
-  },
-  attachmentOptions: {
-    flexDirection: "row",
-    backgroundColor: "white",
-    padding: 10,
-    justifyContent: "space-around",
-    borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
   },
   attachmentOption: {
     alignItems: "center",
@@ -466,26 +393,100 @@ const styles = StyleSheet.create({
   attachmentOptionText: {
     marginTop: 5,
   },
-  locationButton: {
+  attachmentOptions: {
+    backgroundColor: "white",
+    borderTopColor: "#E0E0E0",
+    borderTopWidth: 1,
     flexDirection: "row",
-    backgroundColor: "#4285F4",
+    justifyContent: "space-around",
     padding: 10,
-    borderRadius: 5,
+  },
+  container: {
+    backgroundColor: "#F5F5F5",
+    flex: 1,
+  },
+  currentUserMessage: {
+    alignSelf: "flex-end",
+    backgroundColor: "#DCF8C6",
+  },
+  input: {
+    backgroundColor: "#F0F0F0",
+    borderRadius: 20,
+    flex: 1,
+    maxHeight: 100,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+  },
+  inputContainer: {
     alignItems: "center",
+    backgroundColor: "white",
+    borderTopColor: "#E0E0E0",
+    borderTopWidth: 1,
+    flexDirection: "row",
+    padding: 10,
+  },
+  loadMoreIndicator: {
+    padding: 10,
+  },
+  loadingContainer: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+  },
+  loadingOverlay: {
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    bottom: 0,
+    justifyContent: "center",
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0,
+  },
+  locationButton: {
+    alignItems: "center",
+    backgroundColor: "#4285F4",
+    borderRadius: 5,
+    flexDirection: "row",
     marginVertical: 5,
+    padding: 10,
   },
   locationText: {
     color: "white",
     marginLeft: 5,
   },
-  loadingOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
-    justifyContent: "center",
-    alignItems: "center",
+  messageContainer: {
+    borderRadius: 10,
+    marginHorizontal: 10,
+    marginVertical: 5,
+    maxWidth: "80%",
+    padding: 10,
+  },
+  messageImage: {
+    borderRadius: 10,
+    height: 150,
+    marginVertical: 5,
+    width: 200,
+  },
+  messageText: {
+    fontSize: 16,
+  },
+  otherUserMessage: {
+    alignSelf: "flex-start",
+    backgroundColor: "white",
+  },
+  sendButton: {
+    padding: 10,
+  },
+  senderName: {
+    fontSize: 12,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  timestamp: {
+    alignSelf: "flex-end",
+    color: "#999",
+    fontSize: 10,
+    marginTop: 5,
   },
 })

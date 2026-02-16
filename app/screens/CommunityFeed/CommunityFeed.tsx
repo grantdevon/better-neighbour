@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react"
 import {
   View,
   Text,
-  FlatList,
   Image,
   TouchableOpacity,
   StyleSheet,
@@ -12,12 +11,13 @@ import {
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "app/models"
 import { observer } from "mobx-react-lite"
+import { ListView } from "app/components"
 import firestore, { getDocs } from "@react-native-firebase/firestore"
 
 // Set this to true to make communities free for all users
 const COMMUNITIES_FREE_OVERRIDE = true
 
-const isLocked: boolean = true
+const isLocked = true
 
 export const CommunityFeed = observer(({ navigation }) => {
   const {
@@ -79,7 +79,7 @@ export const CommunityFeed = observer(({ navigation }) => {
 
             communitiesData.push({
               ...communityData,
-              lastMessage: lastMessage,
+              lastMessage,
             })
           }
         }
@@ -207,11 +207,12 @@ export const CommunityFeed = observer(({ navigation }) => {
         </View>
       ) : (
         <>
-          <FlatList
+          <ListView
             data={communities}
             renderItem={renderCommunityItem}
             keyExtractor={(item) => item.id}
             style={styles.list}
+            estimatedItemSize={80}
           />
           <TouchableOpacity style={styles.floatingButton} onPress={navigateToCreateCommunity}>
             <Text style={styles.floatingButtonText}>+</Text>
@@ -223,64 +224,52 @@ export const CommunityFeed = observer(({ navigation }) => {
 })
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F5F5F5",
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  premiumMessage: {
-    fontSize: 18,
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  upgradeButton: {
+  actionButton: {
     backgroundColor: "#007BFF",
+    borderRadius: 5,
+    marginHorizontal: 10,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 5,
   },
-  upgradeButtonText: {
+  actionButtonText: {
     color: "white",
     fontWeight: "bold",
   },
-  list: {
-    flex: 1,
-  },
-  communityItem: {
+  buttonContainer: {
     flexDirection: "row",
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-    backgroundColor: "white",
-    alignItems: "center",
+    justifyContent: "space-around",
+    width: "100%",
   },
-  profilePicture: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 15,
+  centerContainer: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
   },
   communityInfo: {
     flex: 1,
+  },
+  communityItem: {
+    alignItems: "center",
+    backgroundColor: "white",
+    borderBottomColor: "#E0E0E0",
+    borderBottomWidth: 1,
+    flexDirection: "row",
+    padding: 15,
   },
   communityName: {
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
   },
-  lastMessage: {
-    fontSize: 14,
-    color: "#757575",
+  container: {
+    backgroundColor: "#F5F5F5",
+    flex: 1,
   },
   emptyCommunities: {
+    alignItems: "center",
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
     padding: 20,
   },
   emptyCommunitiesText: {
@@ -288,36 +277,48 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: "center",
   },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "100%",
-  },
-  actionButton: {
-    backgroundColor: "#007BFF",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 5,
-    marginHorizontal: 10,
-  },
-  actionButtonText: {
-    color: "white",
-    fontWeight: "bold",
-  },
   floatingButton: {
+    alignItems: "center",
+    backgroundColor: "#007BFF",
+    borderRadius: 30,
+    bottom: 20,
+    elevation: 5,
+    height: 60,
+    justifyContent: "center",
     position: "absolute",
     right: 20,
-    bottom: 20,
     width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#007BFF",
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 5,
   },
   floatingButtonText: {
     color: "white",
     fontSize: 30,
+  },
+  lastMessage: {
+    color: "#757575",
+    fontSize: 14,
+  },
+  list: {
+    flex: 1,
+  },
+  premiumMessage: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  profilePicture: {
+    borderRadius: 25,
+    height: 50,
+    marginRight: 15,
+    width: 50,
+  },
+  upgradeButton: {
+    backgroundColor: "#007BFF",
+    borderRadius: 5,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  upgradeButtonText: {
+    color: "white",
+    fontWeight: "bold",
   },
 })

@@ -125,92 +125,92 @@ export const ReportCard = ({ item, onPress }) => {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  cardActions: {
     flexDirection: "row",
+  },
+  container: {
     backgroundColor: colors.palette.neutral100,
     borderRadius: 16,
-    marginVertical: 6,
+    elevation: 3,
+    flexDirection: "row",
     marginHorizontal: 10,
+    marginVertical: 6,
     padding: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 3,
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
   },
   contentContainer: {
     flex: 1,
   },
+  description: {
+    color: colors.palette.neutral700,
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
   headerRow: {
+    alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     marginBottom: 4,
   },
+  iconContainer: {
+    alignItems: "center",
+    borderRadius: 12,
+    height: 48,
+    justifyContent: "center",
+    marginRight: 12,
+    width: 48,
+  },
+  location: {
+    color: colors.palette.neutral600,
+    fontSize: 14,
+    marginLeft: 4,
+  },
+  locationRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    marginBottom: 8,
+  },
   name: {
+    color: colors.palette.neutral800,
     fontSize: 16,
     fontWeight: "600",
-    color: colors.palette.neutral800,
-  },
-  time: {
-    fontSize: 12,
-    color: colors.palette.neutral500,
-  },
-  typeContainer: {
-    marginBottom: 8,
   },
   reportType: {
     fontSize: 14,
     fontWeight: "600",
   },
-  locationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  location: {
-    fontSize: 14,
-    color: colors.palette.neutral600,
-    marginLeft: 4,
-  },
-  description: {
-    fontSize: 14,
-    color: colors.palette.neutral700,
-    marginBottom: 12,
-    lineHeight: 20,
-  },
-  viewButton: {
-    flexDirection: "row",
+  shareButton: {
     alignItems: "center",
     backgroundColor: colors.palette.primary400,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
     borderRadius: 8,
+    justifyContent: "center",
+    marginLeft: 10,
+    paddingHorizontal: 10,
+  },
+  time: {
+    color: colors.palette.neutral500,
+    fontSize: 12,
+  },
+  typeContainer: {
+    marginBottom: 8,
+  },
+  viewButton: {
+    alignItems: "center",
     alignSelf: "flex-start",
+    backgroundColor: colors.palette.primary400,
+    borderRadius: 8,
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   viewButtonText: {
     color: colors.palette.neutral100,
     fontSize: 14,
     fontWeight: "600",
     marginRight: 4,
-  },
-  cardActions: {
-    flexDirection: "row",
-  },
-  shareButton: {
-    backgroundColor: colors.palette.primary400,
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 10,
-    paddingHorizontal: 10,
-    borderRadius: 8,
   },
 })

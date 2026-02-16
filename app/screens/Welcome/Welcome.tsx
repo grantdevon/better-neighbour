@@ -19,7 +19,7 @@ interface WelcomeScreenData {
 
 // Store for managing welcome screen state
 class WelcomeStore {
-  currentScreenIndex: number = 0
+  currentScreenIndex = 0
 
   constructor() {
     makeAutoObservable(this)
@@ -91,7 +91,7 @@ export const Welcome = observer(({ navigation }) => {
       .catch((error) => {
         navigation.navigate("NotificationPermission")
 
-        //we continue our app flow.
+        // we continue our app flow.
         // we have some error could happen while lanuching InAppReview,
         // Check table for errors and code number that can return in catch.
         console.log(error)
@@ -142,16 +142,51 @@ export const Welcome = observer(({ navigation }) => {
 const { width, height } = Dimensions.get("window")
 
 const styles = StyleSheet.create({
+  activeDot: {
+    backgroundColor: "#007AFF",
+  },
+  buttonContainer: {
+    marginBottom: 30,
+    width: "100%",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
   container: {
-    flex: 1,
-    justifyContent: "space-between",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
+    flex: 1,
+    justifyContent: "space-between",
     padding: 20,
   },
   lottie: {
-    width: width * 0.8,
     height: height * 0.4,
+    width: width * 0.8,
+  },
+  nextButton: {
+    alignItems: "center",
+    backgroundColor: "#007AFF",
+    borderRadius: 10,
+    padding: 15,
+  },
+  progressContainer: {
+    alignSelf: "center",
+    flexDirection: "row",
+    marginBottom: 20,
+  },
+  progressDot: {
+    backgroundColor: "#E0E0E0",
+    borderRadius: 5,
+    height: 10,
+    marginHorizontal: 5,
+    width: 10,
+  },
+  subtitle: {
+    color: "#666",
+    fontSize: 16,
+    textAlign: "center",
   },
   textContainer: {
     alignItems: "center",
@@ -162,40 +197,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginVertical: 20,
     textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#666",
-    textAlign: "center",
-  },
-  buttonContainer: {
-    width: "100%",
-    marginBottom: 30,
-  },
-  nextButton: {
-    backgroundColor: "#007AFF",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  progressContainer: {
-    flexDirection: "row",
-    marginBottom: 20,
-    alignSelf: "center",
-  },
-  progressDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#E0E0E0",
-    marginHorizontal: 5,
-  },
-  activeDot: {
-    backgroundColor: "#007AFF",
   },
 })

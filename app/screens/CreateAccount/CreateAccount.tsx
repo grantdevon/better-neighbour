@@ -44,41 +44,41 @@ export const CreateAccount = observer(({ navigation }: { navigation: any }) => {
 })
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    justifyContent: "space-between",
-    paddingVertical: 50,
-  },
-  secondContainer: {},
-  logo: {
-    width: "100%",
-    height: 70,
-    alignSelf: "center",
-    objectFit: "contain",
-  },
-  text: {
-    fontSize: 36,
-    fontWeight: "500",
-    textAlign: "center",
-    paddingVertical: 7
-  },
-  textLogo: {
-    fontSize: 36,
-    textAlign: "center",
-    fontWeight: "500",
-    color: uiColors.primary,
-    paddingVertical: 15,
-  },
-  description: {
-    fontSize: 12,
-    textAlign: "center",
-    fontWeight: "200",
-    marginVertical: 5,
-    marginHorizontal: 50,
-  },
   button: {
     marginHorizontal: 20,
     marginVertical: 10,
+  },
+  container: {
+    backgroundColor: "#fff",
+    flex: 1,
+    justifyContent: "space-between",
+    paddingVertical: 50,
+  },
+  description: {
+    fontSize: 12,
+    fontWeight: "200",
+    marginHorizontal: 50,
+    marginVertical: 5,
+    textAlign: "center",
+  },
+  logo: {
+    alignSelf: "center",
+    height: 70,
+    objectFit: "contain",
+    width: "100%",
+  },
+  secondContainer: {},
+  text: {
+    fontSize: 36,
+    fontWeight: "500",
+    paddingVertical: 7,
+    textAlign: "center"
+  },
+  textLogo: {
+    color: uiColors.primary,
+    fontSize: 36,
+    fontWeight: "500",
+    paddingVertical: 15,
+    textAlign: "center",
   },
 })

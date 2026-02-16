@@ -35,24 +35,24 @@ export function CustomSplashScreen({ onAnimationComplete }: { onAnimationComplet
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FFFFFF", // Use your app's primary color
+    backgroundColor: "#FFFFFF",
+    flex: 1,
+    justifyContent: "center", // Use your app's primary color
   },
   logo: {
-    width: 150,
     height: 150,
     marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-    marginBottom: 10,
+    width: 150,
   },
   subtitle: {
-    fontSize: 16,
     color: "#CCCCCC",
+    fontSize: 16,
+  },
+  title: {
+    color: "#FFFFFF",
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
 })

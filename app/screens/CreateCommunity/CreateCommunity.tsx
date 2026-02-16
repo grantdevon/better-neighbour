@@ -98,7 +98,7 @@ export const CreateCommunity = observer(() => {
         createdBy: user.id,
         members: [user.id],
         admins: [user.id],
-        isPublic: isPublic,
+        isPublic,
       })
 
       const communityId = newCommunityDoc.id
@@ -109,7 +109,7 @@ export const CreateCommunity = observer(() => {
       // Add entry to UserCommunities collection
       await firestore().collection("UserCommunities").add({
         userId: user.id,
-        communityId: communityId,
+        communityId,
         role: "admin",
         joinedAt: firestore.FieldValue.serverTimestamp(),
       })
@@ -118,7 +118,7 @@ export const CreateCommunity = observer(() => {
       await firestore()
         .collection("CommunityMessages")
         .add({
-          communityId: communityId,
+          communityId,
           senderId: user.id,
           senderName: `${user.firstName} ${user.lastName}`,
           content: `Welcome to ${name}! This is the beginning of your community.`,
@@ -132,7 +132,7 @@ export const CreateCommunity = observer(() => {
 
       // Navigate to the new community chat
       navigation.replace("CommunityChat", {
-        communityId: communityId,
+        communityId,
         communityName: name,
       })
     } catch (error) {
@@ -219,100 +219,100 @@ export const CreateCommunity = observer(() => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: "#F5F5F5",
+    flex: 1,
   },
   content: {
     padding: 20,
+  },
+  createButton: {
+    alignItems: "center",
+    backgroundColor: "#007BFF",
+    borderRadius: 5,
+    marginTop: 10,
+    paddingVertical: 12,
+  },
+  createButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  formGroup: {
+    marginBottom: 20,
+  },
+  imagePickerContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  imagePlaceholder: {
+    alignItems: "center",
+    backgroundColor: "#E0E0E0",
+    borderRadius: 60,
+    height: 120,
+    justifyContent: "center",
+    width: 120,
+  },
+  imagePlaceholderText: {
+    color: "#999",
+    fontSize: 12,
+    marginTop: 5,
+  },
+  input: {
+    backgroundColor: "white",
+    borderColor: "#DDD",
+    borderRadius: 5,
+    borderWidth: 1,
+    fontSize: 16,
+    padding: 10,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 8,
+  },
+  profileImage: {
+    borderRadius: 60,
+    height: 120,
+    width: 120,
+  },
+  radioButton: {
+    alignItems: "center",
+    borderColor: "#007BFF",
+    borderRadius: 10,
+    borderWidth: 2,
+    height: 20,
+    justifyContent: "center",
+    marginRight: 10,
+    width: 20,
+  },
+  radioButtonInner: {
+    backgroundColor: "#007BFF",
+    borderRadius: 5,
+    height: 10,
+    width: 10,
+  },
+  radioButtonSelected: {
+    borderColor: "#007BFF",
+  },
+  radioGroup: {
+    marginTop: 5,
+  },
+  radioLabel: {
+    fontSize: 16,
+  },
+  radioOption: {
+    alignItems: "center",
+    flexDirection: "row",
+    marginBottom: 10,
+  },
+  textArea: {
+    minHeight: 100,
+    textAlignVertical: "top",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
-  },
-  imagePickerContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-  },
-  imagePlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: "#E0E0E0",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  imagePlaceholderText: {
-    color: "#999",
-    marginTop: 5,
-    fontSize: 12,
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 8,
-    fontWeight: "500",
-  },
-  input: {
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: "#DDD",
-    borderRadius: 5,
-    padding: 10,
-    fontSize: 16,
-  },
-  textArea: {
-    minHeight: 100,
-    textAlignVertical: "top",
-  },
-  radioGroup: {
-    marginTop: 5,
-  },
-  radioOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  radioButton: {
-    height: 20,
-    width: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#007BFF",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 10,
-  },
-  radioButtonSelected: {
-    borderColor: "#007BFF",
-  },
-  radioButtonInner: {
-    height: 10,
-    width: 10,
-    borderRadius: 5,
-    backgroundColor: "#007BFF",
-  },
-  radioLabel: {
-    fontSize: 16,
-  },
-  createButton: {
-    backgroundColor: "#007BFF",
-    paddingVertical: 12,
-    borderRadius: 5,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  createButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
   },
 })

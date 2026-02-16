@@ -17,9 +17,8 @@ import { observer } from "mobx-react-lite"
 import { AuthStackParamList } from "app/navigators"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { colors } from "app/theme"
-import { Button } from "app/components"
+import { Button , Text } from "app/components"
 import { firebaseModel } from "app/services/Firebase/firebase.service"
-import { Text } from "app/components"
 import { uiColors } from "app/utils/uiColors"
 import Ionicons from "react-native-vector-icons/Ionicons"
 
@@ -358,51 +357,51 @@ export const SignUp: FC<SignUpProps> = observer(({ navigation }) => {
 })
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    marginTop: 10,
+  },
   container: {
     flex: 1,
     marginHorizontal: 20,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.palette.neutral300,
-    borderRadius: 10,
-    padding: 10,
-    paddingVertical: 15,
-    marginTop: 7,
-  },
-  passwordContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 7,
-  },
-  passwordInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 10,
-    paddingVertical: 15,
-  },
-  passwordToggleButton: {
-    position: "absolute",
-    right: 10,
-    padding: 5,
-  },
-  formTitle: {
-    fontSize: 25,
-    color: colors.text,
-    fontWeight: "bold",
-    marginTop: 10,
-  },
   formDescription: {
-    fontSize: 15,
     color: colors.palette.secondary300,
+    fontSize: 15,
   },
   formLabel: {
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 10,
   },
-  buttonContainer: {
+  formTitle: {
+    color: colors.text,
+    fontSize: 25,
+    fontWeight: "bold",
     marginTop: 10,
+  },
+  input: {
+    borderColor: colors.palette.neutral300,
+    borderRadius: 10,
+    borderWidth: 1,
+    marginTop: 7,
+    padding: 10,
+    paddingVertical: 15,
+  },
+  passwordContainer: {
+    alignItems: "center",
+    flexDirection: "row",
+    marginTop: 7,
+  },
+  passwordInput: {
+    borderRadius: 10,
+    borderWidth: 1,
+    flex: 1,
+    padding: 10,
+    paddingVertical: 15,
+  },
+  passwordToggleButton: {
+    padding: 5,
+    position: "absolute",
+    right: 10,
   },
 })

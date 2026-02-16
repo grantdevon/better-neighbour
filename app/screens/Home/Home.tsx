@@ -13,10 +13,9 @@ import { observer } from "mobx-react-lite"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { AppStackParamList } from "app/navigators"
 import { useHeader } from "app/utils/useHeader"
-import { FlatList } from "react-native-gesture-handler"
 import { useStores } from "app/models"
 import { getFormattedDate } from "app/utils/formatDate"
-import { Button, Text as TX } from "app/components"
+import { Button, Text as TX, ListView } from "app/components"
 import { colors } from "app/theme"
 import LottieView from "lottie-react-native"
 import { ReportCard } from "app/components/ReportCard"
@@ -73,8 +72,8 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
 
   const updateHomePageData = async () => {
     try {
-      let coords = { lat: location?.coords.latitude, lng: location?.coords.longitude }
-      let newLocation = await Location.getCurrentPositionAsync({})
+      const coords = { lat: location?.coords.latitude, lng: location?.coords.longitude }
+      const newLocation = await Location.getCurrentPositionAsync({})
       setLocation(newLocation)
       const province = await fetchLocationFromCoords(
         newLocation.coords.latitude,
@@ -213,7 +212,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
 
   useEffect(() => {
     async function getCurrentLocation() {
-      let { status } = await Location.requestForegroundPermissionsAsync()
+      const { status } = await Location.requestForegroundPermissionsAsync()
       console.log(status)
 
       if (status !== "granted") {
@@ -225,7 +224,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
         return
       }
 
-      let location = await Location.getCurrentPositionAsync({})
+      const location = await Location.getCurrentPositionAsync({})
       setLocation(location)
     }
 
@@ -308,46 +307,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
           placeholderTextColor={colors.palette.neutral500}
         />
       </View>
-      {/* <View style={styles.locationContainer}>
-        <FlatList
-          data={["+", ...locations]}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.chipWrapper}>
-              {item === "+" ? (
-                <Chip
-                  title="+"
-                  onPress={() =>
-                    navigation.navigate("Locations", {
-                      coords: { lat: location?.coords.latitude, lng: location?.coords.longitude },
-                    })
-                  }
-                  containerStyle={styles.plusChipContainer}
-                  buttonStyle={styles.plusChip}
-                  titleStyle={styles.plusChipText}
-                />
-              ) : (
-                <Chip
-                  title={item}
-                  icon={{
-                    name: "close",
-                    type: "material",
-                    color: "white",
-                    size: 18,
-                    onPress: () => handleRemoveLocation(item),
-                  }}
-                  containerStyle={styles.chipContainer}
-                  buttonStyle={styles.chip}
-                  titleStyle={styles.chipText}
-                />
-              )}
-            </View>
-          )}
-        />
-      </View> */}
-      <FlatList
+      <ListView
         data={filteredReports}
         renderItem={RenderCards}
         showsVerticalScrollIndicator={false}
@@ -358,6 +318,7 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
             colors={[colors.palette.neutral800]}
           />
         }
+        estimatedItemSize={200}
         ListEmptyComponent={RenderEmptyState}
       />
       <ActionSheet
@@ -395,8 +356,8 @@ export const Home: FC<homeProps> = observer(({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: colors.palette.neutral100,
+    flex: 1,
   },
   searchContainer: {
     marginVertical: 10,
@@ -404,29 +365,29 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     backgroundColor: colors.palette.neutral200,
-    padding: 12,
     borderRadius: 10,
-    fontSize: 16,
     color: colors.palette.neutral800,
+    fontSize: 16,
+    padding: 12,
   },
   headerContainer: {
     marginVertical: 20,
   },
   headerText: {
+    color: colors.palette.neutral800,
     fontSize: 17,
     fontWeight: "700",
-    color: colors.palette.neutral800,
   },
   cardContainer: {
-    marginVertical: 5,
-    padding: 15,
     backgroundColor: "#ffffff",
     borderRadius: 10,
+    elevation: 3,
+    marginVertical: 5,
+    padding: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 3,
   },
   nameText: {
     fontSize: 16,
@@ -434,84 +395,84 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   locationText: {
-    fontSize: 14,
     color: "#555",
+    fontSize: 14,
     marginBottom: 5,
   },
   descriptionText: {
-    fontSize: 14,
     color: "#777",
+    fontSize: 14,
     marginBottom: 10,
   },
   map: {
-    height: 250,
     borderRadius: 10,
+    height: 250,
   },
   noPermissionButton: {
-    width: "100%",
     marginTop: 20,
+    width: "100%",
   },
   button: {
     alignSelf: "center",
     backgroundColor: "#0044cc",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
     borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   loadingAnimation: {
-    width: 250,
-    height: 250,
     alignSelf: "center",
+    height: 250,
+    width: 250,
   },
   loadingText: {
-    fontWeight: "bold",
-    fontSize: 25,
     color: colors.palette.neutral800,
-    textAlign: "center",
     flexWrap: "wrap",
+    fontSize: 25,
+    fontWeight: "bold",
+    textAlign: "center",
   },
   EmptyStateCard: {
-    paddingHorizontal: 10,
     backgroundColor: "#ffffff",
     borderRadius: 10,
+    elevation: 3,
+    marginHorizontal: 15,
+    marginVertical: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 3,
-    paddingVertical: 20,
-    marginVertical: 20,
-    marginHorizontal: 15,
   },
   emptyStateLottieAnimation: {
-    width: 320,
-    height: 200,
     alignSelf: "center",
+    height: 200,
     objectFit: "contain",
+    width: 320,
   },
   emptyStateText: {
-    fontWeight: "bold",
     color: colors.palette.neutral700,
-    paddingLeft: 10,
     fontSize: 20,
+    fontWeight: "bold",
+    paddingLeft: 10,
   },
   emptyStateButton: {
     borderRadius: 7,
   },
   locationContainer: {
+    flexDirection: "row",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    flexDirection: "row",
   },
   noLocationsText: {
     color: colors.palette.neutral500,
     fontSize: 16,
   },
   chip: {
-    marginRight: 5,
     backgroundColor: colors.palette.primary500,
-    padding: 10,
     borderRadius: 20,
+    marginRight: 5,
+    padding: 10,
   },
   chipText: {
     color: "white",
@@ -533,8 +494,8 @@ const styles = StyleSheet.create({
   //   fontSize: 14,
   // },
   noPermissioncontainer: {
-    flex: 1,
     alignItems: "center",
+    flex: 1,
     justifyContent: "center",
     paddingHorizontal: 20,
   },
@@ -543,40 +504,40 @@ const styles = StyleSheet.create({
   },
   plusChip: {
     backgroundColor: colors.palette.neutral100,
-    borderWidth: 1,
     borderColor: colors.palette.neutral500,
+    borderWidth: 1,
   },
   plusChipText: {
     color: colors.palette.neutral800,
   },
 
   shareCard: {
+    alignItems: "center",
     backgroundColor: colors.palette.neutral100,
     borderRadius: 10,
-    padding: 15,
+    elevation: 3,
     margin: 10,
+    padding: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 3,
-    alignItems: "center",
   },
   shareCardText: {
-    fontSize: 16,
     color: colors.palette.neutral700,
+    fontSize: 16,
     marginBottom: 10,
     textAlign: "center",
   },
   shareButton: {
-    width: "100%",
     backgroundColor: colors.palette.secondary100,
+    width: "100%",
   },
   cardShareButton: {
-    marginHorizontal: 15,
-    marginTop: 10,
-    marginBottom: 15,
     backgroundColor: colors.palette.secondary100,
     borderRadius: 7,
+    marginBottom: 15,
+    marginHorizontal: 15,
+    marginTop: 10,
   },
 })

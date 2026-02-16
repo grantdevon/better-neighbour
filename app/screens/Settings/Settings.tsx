@@ -281,23 +281,59 @@ export const Settings: FC<settingsProps> = observer(({ navigation }) => {
 })
 
 const styles = StyleSheet.create({
-  screen: {
-    backgroundColor: colors.palette.neutral100,
-    paddingTop: 15,
-  },
-  profileContainer: {
-    paddingTop: 30,
-    paddingBottom: 20,
+  action: {
     alignItems: "center",
+    backgroundColor: colors.palette.neutral200,
+    borderRadius: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+    padding: 12,
+  },
+  actionArrow: {
+    opacity: 0.5,
+  },
+  actionContent: {
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  actionDanger: {
+    backgroundColor: colors.palette.angry100,
+  },
+  actionIcon: {
+    marginRight: 12,
+  },
+  actionSecondary: {
+    backgroundColor: colors.palette.neutral200,
+  },
+  actionText: {
+    color: colors.palette.neutral800,
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  actionTextDanger: {
+    color: colors.palette.angry500,
+  },
+  actionTextSecondary: {
+    color: colors.palette.neutral600,
+  },
+  actionsContainer: {
     backgroundColor: colors.palette.neutral100,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  appVersion: {
+    fontSize: 12,
+    paddingTop: 20,
+    textAlign: "center"
   },
   avatarContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
     backgroundColor: uiColors.primary,
+    borderRadius: 40,
+    height: 80,
     justifyContent: "center",
     marginVertical: 16,
+    width: 80,
   },
   avatarText: {
     color: colors.palette.neutral100,
@@ -305,16 +341,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
-  profileDetails: {
-    alignItems: "center",
-  },
   heading: {
     color: colors.palette.neutral800,
-    marginBottom: 8,
-  },
-  membershipContainer: {
-    flexDirection: "row",
-    alignItems: "center",
     marginBottom: 8,
   },
   memberIcon: {
@@ -323,60 +351,32 @@ const styles = StyleSheet.create({
   memberText: {
     color: colors.palette.neutral600,
   },
-  verificationContainer: {
-    flexDirection: "row",
+  membershipContainer: {
     alignItems: "center",
+    flexDirection: "row",
+    marginBottom: 8,
+  },
+  profileContainer: {
+    alignItems: "center",
+    backgroundColor: colors.palette.neutral100,
+    paddingBottom: 20,
+    paddingTop: 30,
+  },
+  profileDetails: {
+    alignItems: "center",
+  },
+  screen: {
+    backgroundColor: colors.palette.neutral100,
+    paddingTop: 15,
+  },
+  verificationContainer: {
+    alignItems: "center",
+    flexDirection: "row",
   },
   verifyIcon: {
     marginRight: 6,
   },
   verifyText: {
     fontWeight: "500",
-  },
-  actionsContainer: {
-    backgroundColor: colors.palette.neutral100,
-    paddingHorizontal: 16,
-    paddingTop: 16,
-  },
-  action: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: colors.palette.neutral200,
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  actionContent: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  actionIcon: {
-    marginRight: 12,
-  },
-  actionText: {
-    fontSize: 13,
-    fontWeight: "500",
-    color: colors.palette.neutral800,
-  },
-  actionArrow: {
-    opacity: 0.5,
-  },
-  actionDanger: {
-    backgroundColor: colors.palette.angry100,
-  },
-  actionSecondary: {
-    backgroundColor: colors.palette.neutral200,
-  },
-  actionTextDanger: {
-    color: colors.palette.angry500,
-  },
-  actionTextSecondary: {
-    color: colors.palette.neutral600,
-  },
-  appVersion: {
-    textAlign: "center",
-    paddingTop: 20,
-    fontSize: 12
   },
 })

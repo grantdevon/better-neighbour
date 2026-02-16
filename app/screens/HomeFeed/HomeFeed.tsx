@@ -173,7 +173,7 @@ export const HomeFeed: FC<homeProps> = observer(({ navigation }) => {
 
   const openDetails = (report) => {
     navigation.navigate("FeedDetails", {
-      report: report,
+      report,
     })
   }
 
@@ -304,37 +304,37 @@ export const HomeFeed: FC<homeProps> = observer(({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: colors.palette.neutral100,
+    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
   },
   searchContainer: {
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderColor: colors.palette.neutral300,
+    borderRadius: 25,
+    borderWidth: 1,
+    flexDirection: "row",
+    fontSize: 13,
     marginHorizontal: 15,
     marginVertical: 10,
     paddingHorizontal: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderRadius: 25,
     padding: 12,
-    borderWidth: 1,
-    borderColor: colors.palette.neutral300,
-    fontSize: 13,
   },
   searchInput: {
-    flex: 1,
     backgroundColor: "#ffffff",
     borderRadius: 10,
-    fontSize: 13,
     color: colors.palette.neutral800,
+    flex: 1,
+    fontSize: 13,
   },
   title: {
     fontSize: 13,
+    fontWeight: "bold",
     marginHorizontal: 15,
     marginVertical: 10,
-    fontWeight: "bold",
   },
   reportsContainer: {
     // paddingHorizontal: 15,
@@ -350,53 +350,53 @@ const styles = StyleSheet.create({
     backgroundColor: colors.palette.neutral200,
   },
   emptyStateContainerSearch: {
-    flex: 1,
     alignItems: "center",
+    flex: 1,
     justifyContent: "center",
     paddingVertical: 20,
   },
   activeFilterContainer: {
-    flexDirection: "row",
     alignItems: "center",
+    backgroundColor: colors.palette.neutral200,
+    borderRadius: 8,
+    flexDirection: "row",
     justifyContent: "space-between",
     marginHorizontal: 15,
     marginVertical: 10,
     padding: 8,
-    backgroundColor: colors.palette.neutral200,
-    borderRadius: 8,
   },
   activeFilterText: {
-    fontSize: 13,
     color: colors.palette.neutral800,
+    fontSize: 13,
   },
   clearFilterText: {
-    fontSize: 13,
     color: colors.palette.primary500,
+    fontSize: 13,
     marginLeft: 10,
   },
   // Add to your styles object
   locationIndicator: {
-    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
     backgroundColor: colors.palette.neutral100,
-    paddingVertical: 5,
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: 10,
+    paddingVertical: 5,
   },
   locationText: {
-    fontSize: 12,
     color: colors.palette.neutral800,
+    fontSize: 12,
     marginRight: 5,
   },
   loadingContainer: {
-    padding: 20,
     alignItems: "center",
-    justifyContent: "center",
     flexDirection: "row",
+    justifyContent: "center",
+    padding: 20,
   },
   loadingText: {
-    marginLeft: 10,
     color: colors.palette.neutral600,
     fontSize: 14,
+    marginLeft: 10,
   },
 })

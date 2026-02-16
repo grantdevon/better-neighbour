@@ -1,5 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
-import { Share } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet , Share } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { colors } from "app/theme"
 import { uiColors } from "app/utils/uiColors"
@@ -100,9 +99,10 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
+    elevation: 5,
     marginHorizontal: 16,
+    marginVertical: 8,
+    padding: 16,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -110,78 +110,77 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+  datetime: {
+    alignItems: "center",
+    color: "#666",
+    fontSize: 8,
+  },
+  datetimeContainer: {
+    alignItems: "center",
+  },
+  description: {
+    color: "#333",
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  descriptionContainer: {
     marginBottom: 16,
   },
-  profileSection: {
+  footer: {
+    borderTopColor: "#E8E8E8",
+    borderTopWidth: 1,
     flexDirection: "row",
-    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingTop: 12,
+  },
+  header: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: uiColors.primary,
-    justifyContent: "center",
     alignItems: "center",
+    backgroundColor: uiColors.primary,
+    borderRadius: 20,
+    height: 40,
+    justifyContent: "center",
+    width: 40,
   },
-  nameTimeContainer: {
-    marginLeft: 12,
+  location: {
+    color: "#666",
+    fontSize: 12,
   },
   name: {
     fontSize: 13,
     fontWeight: "400",
     marginBottom: 2,
   },
-  reportType: {
-    fontSize: 10,
-    color: "#666",
+  nameTimeContainer: {
+    marginLeft: 12,
   },
-  datetime: {
-    fontSize: 8,
-    color: "#666",
+  profileSection: {
     alignItems: "center",
-  },
-  descriptionContainer: {
-    marginBottom: 16,
-  },
-  description: {
-    fontSize: 14,
-    color: "#333",
-    marginBottom: 8,
-  },
-  location: {
-    fontSize: 12,
-    color: "#666",
-  },
-  footer: {
-    borderTopWidth: 1,
-    borderTopColor: "#E8E8E8",
-    paddingTop: 12,
     flexDirection: "row",
-    justifyContent: "flex-end",
+  },
+  reportType: {
+    color: "#666",
+    fontSize: 10,
   },
   shareButton: {
-    flexDirection: "row",
     alignItems: "center",
     backgroundColor: uiColors.primary,
+    borderRadius: 25,
+    flexDirection: "row",
     paddingHorizontal: 15,
     paddingVertical: 5,
-    borderRadius: 25,
   },
   shareButtonText: {
     color: "#fff",
-    marginLeft: 8,
     fontSize: 12,
     fontWeight: "400",
-  },
-  datetimeContainer: {
-    alignItems: "center",
+    marginLeft: 8,
   },
 })
 
