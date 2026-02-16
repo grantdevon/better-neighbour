@@ -47,7 +47,7 @@ export const Feedback: FC = observer(({ navigation }) => {
   const submitFeedback = async () => {
     setLoading(true)
     await firebaseModel.sendDoc("feedback", generateUUID(), {
-      feedback: feedback,
+      feedback,
       date: new Date(),
       userId: user.id,
       name: user.firstName,
@@ -104,36 +104,36 @@ export const Feedback: FC = observer(({ navigation }) => {
 })
 
 const styles = StyleSheet.create({
-  inputDescription: {
-    borderWidth: 1,
-    borderRadius: 7,
-    borderColor: "grey",
-    paddingHorizontal: 10,
-    paddingVertical: 20,
-    paddingTop: 15,
-    marginTop: 20,
-    minHeight: 200,
-  },
-  container: {
-    paddingHorizontal: 15,
-  },
-  button: {
-    marginTop: 20,
-    borderRadius: 10,
-  },
   backButton: {
-    width: 45,
-    height: 45,
-    marginHorizontal: 15,
-    zIndex: 2,
     backgroundColor: colors.palette.neutral100,
-    padding: 10,
     borderRadius: 20,
+    elevation: 5,
+    height: 45,
+    marginBottom: 10,
+    marginHorizontal: 15,
+    padding: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 5,
-    marginBottom: 10
+    width: 45,
+    zIndex: 2
+  },
+  button: {
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  container: {
+    paddingHorizontal: 15,
+  },
+  inputDescription: {
+    borderColor: "grey",
+    borderRadius: 7,
+    borderWidth: 1,
+    marginTop: 20,
+    minHeight: 200,
+    paddingHorizontal: 10,
+    paddingTop: 15,
+    paddingVertical: 20,
   },
 })

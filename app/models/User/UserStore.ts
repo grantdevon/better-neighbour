@@ -62,7 +62,7 @@ export const UserStoreModel = types
 
       // The action will return a promise that resolves to the returned value
       // (or rejects with anything thrown from the action)
-      return
+
     })
     const addLocation = (location: string | string[]) => {
       try {

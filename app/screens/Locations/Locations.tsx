@@ -3,7 +3,6 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  FlatList,
   StyleSheet,
   ActivityIndicator,
   Modal,
@@ -13,7 +12,7 @@ import Icon from "react-native-vector-icons/Ionicons"
 import axios from "axios"
 import { debounce } from "lodash"
 
-import { Button, Text } from "app/components"
+import { Button, Text, ListView } from "app/components"
 import { useHeader } from "app/utils/useHeader"
 import { useStores } from "app/models"
 import { getFormattedDate } from "app/utils/formatDate"
@@ -77,7 +76,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationSelect, selec
             item.address.suburb || item.address.city_district || item.address.town || nameParts[0]
 
           return {
-            name: name,
+            name,
             fullAddress: item.display_name,
           }
         })
@@ -174,11 +173,12 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationSelect, selec
             {error && <Text style={styles.errorText}>{error}</Text>}
 
             {/* Location Results */}
-            <FlatList
+            <ListView
               data={locations}
               renderItem={renderLocationItem}
               keyExtractor={(item) => item.name}
               style={styles.locationList}
+              estimatedItemSize={50}
               ListEmptyComponent={() => (
                 <Text style={styles.emptyListText}>
                   {searchQuery
@@ -267,98 +267,98 @@ export const Locations = observer(({ navigation, route }) => {
 })
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: colors.background,
     flex: 1,
     padding: 15,
-    backgroundColor: colors.background,
+  },
+  emptyListText: {
+    color: colors.text,
+    marginVertical: 20,
+    textAlign: "center",
+  },
+  errorText: {
+    color: colors.error,
+    marginVertical: 10,
+    textAlign: "center",
   },
   heading: {
     marginBottom: 15,
   },
-  searchContainer: {
-    marginBottom: 15,
+  loadingIndicator: {
+    marginVertical: 15,
   },
-  searchInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-  },
-  searchPlaceholder: {
-    marginLeft: 10,
+  locationAddress: {
     color: colors.text,
   },
+  locationItem: {
+    borderBottomColor: colors.border,
+    borderBottomWidth: 1,
+    padding: 15,
+  },
+  locationList: {
+    maxHeight: 300,
+  },
+  locationName: {
+    fontWeight: "bold",
+  },
   modalContainer: {
+    backgroundColor: "rgba(0,0,0,0.5)",
     flex: 1,
     justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
     backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 15,
     maxHeight: "80%",
+    padding: 15,
   },
   modalSearchContainer: {
-    flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 8,
-    padding: 10,
+    borderWidth: 1,
+    flexDirection: "row",
     marginBottom: 10,
+    padding: 10,
   },
   modalSearchInput: {
     flex: 1,
     marginHorizontal: 10,
   },
-  locationList: {
-    maxHeight: 300,
+  saveButton: {
+    marginTop: "auto",
   },
-  locationItem: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+  searchContainer: {
+    marginBottom: 15,
   },
-  locationName: {
-    fontWeight: "bold",
+  searchInputContainer: {
+    alignItems: "center",
+    borderColor: colors.border,
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: "row",
+    padding: 10,
   },
-  locationAddress: {
+  searchPlaceholder: {
     color: colors.text,
+    marginLeft: 10,
+  },
+  selectedLocationChip: {
+    alignItems: "center",
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderRadius: 20,
+    borderWidth: 1,
+    flexDirection: "row",
+    margin: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
   selectedLocationsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     marginBottom: 15,
-  },
-  selectedLocationChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    margin: 5,
-  },
-  saveButton: {
-    marginTop: "auto",
-  },
-  loadingIndicator: {
-    marginVertical: 15,
-  },
-  errorText: {
-    color: colors.error,
-    textAlign: "center",
-    marginVertical: 10,
-  },
-  emptyListText: {
-    textAlign: "center",
-    color: colors.text,
-    marginVertical: 20,
   },
 })
 

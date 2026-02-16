@@ -88,56 +88,56 @@ const Categories: React.FC<CategoriesProps> = ({ onSelectCategory, selectedCateg
   )
 }
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 15,
-  },
-  title: {
-    marginBottom: 12,
-    marginLeft: 16,
-    fontSize: 13,
-    fontWeight: "bold",
-  },
-  scrollContent: {
-    paddingHorizontal: 16,
-  },
   categoryContainer: {
     alignItems: "center",
     marginRight: 16,
     width: 60,
   },
+  categoryText: {
+    color: "#333333",
+    fontSize: 7,
+    fontWeight: "800",
+    lineHeight: 10,
+    textAlign: "center", // Added line height
+  },
   circleContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: uiColors.lightGray,
-    justifyContent: "center",
     alignItems: "center",
+    backgroundColor: uiColors.lightGray,
+    borderRadius: 25,
+    height: 50,
+    justifyContent: "center",
     marginBottom: 8,
+    width: 50,
+  },
+  container: {
+    marginTop: 15,
+  },
+  pressable: {
+    alignItems: "center",
+    height: "100%",
+    justifyContent: "center",
+    width: "100%",
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
   },
   selectedCircle: {
     backgroundColor: uiColors.primary
   },
-  pressable: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
+  selectedText: {
+    color: colors.palette.primary500,
+    fontWeight: "500",
   },
   textContainer: {
     height: 20, // Fixed height for text container
     justifyContent: "center",
     alignItems: "center",
   },
-  categoryText: {
-    fontSize: 7,
-    textAlign: "center",
-    color: "#333333",
-    fontWeight: "800",
-    lineHeight: 10, // Added line height
-  },
-  selectedText: {
-    color: colors.palette.primary500,
-    fontWeight: "500",
+  title: {
+    fontSize: 13,
+    fontWeight: "bold",
+    marginBottom: 12,
+    marginLeft: 16,
   },
 })
 

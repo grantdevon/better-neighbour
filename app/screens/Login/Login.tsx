@@ -144,44 +144,44 @@ export const Login: FC<LoginProps> = observer(({ navigation }) => {
 })
 
 const styles = StyleSheet.create({
+  baseTextColor: { color: colors.text },
+  button: {
+    marginHorizontal: 20,
+    marginTop: 20,
+  },
   container: {
+    backgroundColor: "#FFFFFF",
     flex: 1,
     justifyContent: "space-evenly",
-    backgroundColor: "#FFFFFF",
-  },
-  signUpContainer: {
-    flexDirection: "row",
-    marginTop: 15,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  signUpText: { textAlign: "center", color: colors.palette.neutral300, fontSize: 15 },
-  baseTextColor: { color: colors.text },
-  title: { color: colors.palette.neutral300, fontSize: 30, textAlign: "center", marginBottom: 50 },
-  mainContent: { marginTop: 30 },
-  inputContainer: { marginTop: 10 },
-  textInput: {
-    backgroundColor: colors.palette.neutral100,
-    marginVertical: 10,
-    marginHorizontal: 20,
-    paddingVertical: 20,
-    paddingHorizontal: 10,
-    borderRadius: 7,
-    borderColor: "#C5C6CC",
-    borderWidth: 1,
-  },
-  button: {
-    marginTop: 20,
-    marginHorizontal: 20,
   },
   forgotPassword: {
     // alignItems: "center",
     paddingLeft: 20,
   },
+  inputContainer: { marginTop: 10 },
   logo: {
-    width: "100%",
-    height: 70,
     alignSelf: "center",
+    height: 70,
     objectFit: "contain",
+    width: "100%",
   },
+  mainContent: { marginTop: 30 },
+  signUpContainer: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 15,
+  },
+  signUpText: { color: colors.palette.neutral300, fontSize: 15, textAlign: "center" },
+  textInput: {
+    backgroundColor: colors.palette.neutral100,
+    borderColor: "#C5C6CC",
+    borderRadius: 7,
+    borderWidth: 1,
+    marginHorizontal: 20,
+    marginVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 20,
+  },
+  title: { color: colors.palette.neutral300, fontSize: 30, marginBottom: 50, textAlign: "center" },
 })

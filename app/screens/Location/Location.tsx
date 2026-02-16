@@ -76,46 +76,46 @@ export const LocationsPermission = observer(({ navigation }) => {
 })
 
 const styles = StyleSheet.create({
+  button: {
+    marginTop: 20,
+  },
+  buttonContainer: {
+    width: "100%",
+  },
   container: {
-    flex: 1,
     backgroundColor: "#fff",
+    flex: 1,
   },
   content: {
+    alignItems: "center",
     flex: 1,
     justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 30,
     paddingHorizontal: 20,
+    paddingVertical: 30,
+  },
+  description: {
+    fontSize: 16,
+    marginVertical: 7,
+  },
+  iconContainer: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+  },
+  subtitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 8,
   },
   textContainer: {
     // alignItems: "center",
     width: "100%",
   },
   title: {
+    color: "#000000",
     fontSize: 16,
+    fontWeight: "200",
     marginBottom: 10,
     textAlign: "left",
-    color: "#000000",
-    fontWeight: "200",
-  },
-  subtitle: {
-    fontSize: 24,
-    marginBottom: 8,
-    fontWeight: "bold",
-  },
-  description: {
-    marginVertical: 7,
-    fontSize: 16,
-  },
-  iconContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  buttonContainer: {
-    width: "100%",
-  },
-  button: {
-    marginTop: 20,
   },
 })

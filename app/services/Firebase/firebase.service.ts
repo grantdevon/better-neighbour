@@ -51,7 +51,7 @@ const signUp = async (user: User): Promise<void> => {
     const userData = { ...user, dateJoined }
     const id = res.user.uid
     delete userData.password
-    await sendDocument("users", id, { ...userData, id: id })
+    await sendDocument("users", id, { ...userData, id })
       .then((res) => console.log("Sign up collection hydrated!"))
       .catch((err) => console.log(err))
     // delete user if send doc returns err

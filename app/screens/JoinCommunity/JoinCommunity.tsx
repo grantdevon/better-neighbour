@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  FlatList,
   Alert,
 } from "react-native"
 import {
@@ -25,6 +24,7 @@ import {
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "app/models"
+import { ListView } from "app/components"
 
 export const JoinCommunity = observer(() => {
   const {
@@ -333,11 +333,12 @@ export const JoinCommunity = observer(() => {
           {tabIndex === 0 && (
             <>
               {invitations.length > 0 ? (
-                <FlatList
+                <ListView
                   data={invitations}
                   renderItem={renderInvitationItem}
                   keyExtractor={(item) => item.id}
                   style={styles.list}
+                  estimatedItemSize={80}
                 />
               ) : (
                 <View style={styles.emptyContainer}>
@@ -350,11 +351,12 @@ export const JoinCommunity = observer(() => {
           {tabIndex === 1 && (
             <>
               {publicCommunities.length > 0 ? (
-                <FlatList
+                <ListView
                   data={publicCommunities}
                   renderItem={renderPublicCommunityItem}
                   keyExtractor={(item) => item.id}
                   style={styles.list}
+                  estimatedItemSize={80}
                 />
               ) : (
                 <View style={styles.emptyContainer}>
@@ -387,56 +389,64 @@ export const JoinCommunity = observer(() => {
 })
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F5F5F5",
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  tabContainer: {
-    flexDirection: "row",
-    marginBottom: 20,
-    borderRadius: 5,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#007BFF",
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: "center",
-    backgroundColor: "#F0F0F0",
-  },
   activeTab: {
     backgroundColor: "#007BFF",
-  },
-  tabText: {
-    color: "#007BFF",
-    fontWeight: "500",
   },
   activeTabText: {
     color: "white",
   },
-  loadingContainer: {
+  container: {
+    backgroundColor: "#F5F5F5",
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 20,
   },
-  list: {
-    flex: 1,
-  },
-  itemContainer: {
-    flexDirection: "row",
+  emailButton: {
     alignItems: "center",
-    padding: 15,
+    backgroundColor: "#007BFF",
+    borderRadius: 5,
+    paddingVertical: 12,
+  },
+  emailButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  emailContainer: {
     backgroundColor: "white",
     borderRadius: 5,
+    padding: 20,
+  },
+  emailInput: {
+    backgroundColor: "#F0F0F0",
+    borderColor: "#DDD",
+    borderRadius: 5,
+    borderWidth: 1,
+    fontSize: 16,
+    marginBottom: 20,
+    padding: 10,
+  },
+  emailLabel: {
+    fontSize: 16,
     marginBottom: 10,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
+  },
+  emptyText: {
+    color: "#757575",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  itemContainer: {
+    alignItems: "center",
+    backgroundColor: "white",
+    borderRadius: 5,
+    flexDirection: "row",
+    marginBottom: 10,
+    padding: 15,
   },
   itemInfo: {
     flex: 1,
@@ -447,57 +457,49 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   itemSubText: {
-    fontSize: 14,
     color: "#757575",
+    fontSize: 14,
   },
   joinButton: {
     backgroundColor: "#007BFF",
+    borderRadius: 5,
     paddingHorizontal: 15,
     paddingVertical: 8,
-    borderRadius: 5,
   },
   joinButtonText: {
     color: "white",
     fontWeight: "500",
   },
-  emptyContainer: {
+  list: {
+    flex: 1,
+  },
+  loadingContainer: {
+    alignItems: "center",
     flex: 1,
     justifyContent: "center",
+  },
+  tab: {
     alignItems: "center",
-    padding: 20,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: "#757575",
-    textAlign: "center",
-  },
-  emailContainer: {
-    padding: 20,
-    backgroundColor: "white",
-    borderRadius: 5,
-  },
-  emailLabel: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  emailInput: {
     backgroundColor: "#F0F0F0",
+    flex: 1,
+    paddingVertical: 10,
+  },
+  tabContainer: {
+    borderColor: "#007BFF",
+    borderRadius: 5,
     borderWidth: 1,
-    borderColor: "#DDD",
-    borderRadius: 5,
-    padding: 10,
-    fontSize: 16,
+    flexDirection: "row",
     marginBottom: 20,
+    overflow: "hidden",
   },
-  emailButton: {
-    backgroundColor: "#007BFF",
-    paddingVertical: 12,
-    borderRadius: 5,
-    alignItems: "center",
+  tabText: {
+    color: "#007BFF",
+    fontWeight: "500",
   },
-  emailButtonText: {
-    color: "white",
-    fontSize: 16,
+  title: {
+    fontSize: 24,
     fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
   },
 })
